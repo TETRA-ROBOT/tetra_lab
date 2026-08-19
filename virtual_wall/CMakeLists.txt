@@ -48,8 +48,9 @@ include_directories(
   ${nav_msgs_INCLUDE_DIRS}
 )
 
-# Add Executable
-add_executable(virtual_wall_node src/virtual_wall.cpp)
+# Add Executables
+add_executable(virtual_wall_m_node src/virtual_wall_m.cpp)
+add_executable(virtual_wall_h_node src/virtual_wall_h.cpp)
 
 # Set dependencies for the executable
 set(dependencies
@@ -65,15 +66,17 @@ set(dependencies
   nav_msgs
 )
 
-ament_target_dependencies(virtual_wall_node ${dependencies})
+ament_target_dependencies(virtual_wall_m_node ${dependencies})
+ament_target_dependencies(virtual_wall_h_node ${dependencies})
 
 # Ensure message generation completes before building the node
 rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
-target_link_libraries(virtual_wall_node ${cpp_typesupport_target})
+target_link_libraries(virtual_wall_m_node ${cpp_typesupport_target})
+target_link_libraries(virtual_wall_h_node ${cpp_typesupport_target})
 
 # Install
 install(TARGETS
-  virtual_wall_node
+  virtual_wall_m_node virtual_wall_h_node
   DESTINATION lib/${PROJECT_NAME}
 )
 

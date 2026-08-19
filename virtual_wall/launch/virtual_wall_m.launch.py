@@ -14,7 +14,7 @@ def generate_launch_description():
 
     virtual_wall_node = Node(
         package='virtual_wall', 
-        executable='virtual_wall_node',
+        executable='virtual_wall_m_node',
         output='screen'
     )
 
