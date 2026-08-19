@@ -54,6 +54,7 @@ add_executable(virtual_wall_h_node src/virtual_wall_h.cpp)
 add_executable(virtual_wall_edu_node src/virtual_wall_edu.cpp)
 add_executable(virtual_wall_mh_node src/virtual_wall_mh.cpp)
 add_executable(virtual_wall_s_node src/virtual_wall_s.cpp)
+add_executable(virtual_wall_sm_node src/virtual_wall_sm.cpp)
 
 # Set dependencies for the executable
 set(dependencies
@@ -74,6 +75,7 @@ ament_target_dependencies(virtual_wall_h_node ${dependencies})
 ament_target_dependencies(virtual_wall_edu_node ${dependencies})
 ament_target_dependencies(virtual_wall_mh_node ${dependencies})
 ament_target_dependencies(virtual_wall_s_node ${dependencies})
+ament_target_dependencies(virtual_wall_sm_node ${dependencies})
 
 # Ensure message generation completes before building the node
 rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
@@ -82,10 +84,11 @@ target_link_libraries(virtual_wall_h_node ${cpp_typesupport_target})
 target_link_libraries(virtual_wall_edu_node ${cpp_typesupport_target})
 target_link_libraries(virtual_wall_mh_node ${cpp_typesupport_target})
 target_link_libraries(virtual_wall_s_node ${cpp_typesupport_target})
+target_link_libraries(virtual_wall_sm_node ${cpp_typesupport_target})
 
 # Install
 install(TARGETS
-  virtual_wall_m_node virtual_wall_h_node virtual_wall_edu_node virtual_wall_mh_node virtual_wall_s_node
+  virtual_wall_m_node virtual_wall_h_node virtual_wall_edu_node virtual_wall_mh_node virtual_wall_s_node virtual_wall_sm_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
