@@ -10,8 +10,7 @@ echo ""
 
 # 환경 설정
 source /opt/ros/jazzy/setup.bash
-source ~/ros2_ws/install/setup.bash
-source ~/test/robot_gazebo_sim/install/setup.bash
+source /home/tetra/tetra_integration/ros/install/setup.bash
 
 # 1. 패키지 확인
 echo "1. 패키지 확인 중..."
@@ -38,16 +37,16 @@ fi
 echo ""
 echo "3. URDF 파일 확인 중..."
 URDF_DIR=$(ros2 pkg prefix robot_gazebo_sim)/share/robot_gazebo_sim/urdf
-if [ -f "$URDF_DIR/robot_gazebo.xacro" ]; then
-    echo "   ✅ robot_gazebo.xacro 파일 존재"
+if [ -f "$URDF_DIR/tetra_gazebo.xacro" ]; then
+    echo "   ✅ tetra_gazebo.xacro 파일 존재"
     # xacro 파일 처리 테스트
-    if xacro $URDF_DIR/robot_gazebo.xacro > /dev/null 2>&1; then
+    if xacro $URDF_DIR/tetra_gazebo.xacro > /dev/null 2>&1; then
         echo "   ✅ xacro 파일 처리 성공"
     else
         echo "   ⚠️  xacro 파일 처리 중 경고/오류 발생"
     fi
 else
-    echo "   ❌ robot_gazebo.xacro 파일을 찾을 수 없습니다"
+    echo "   ❌ tetra_gazebo.xacro 파일을 찾을 수 없습니다"
 fi
 
 # 4. World 파일 확인

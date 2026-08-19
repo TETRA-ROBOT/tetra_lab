@@ -23,7 +23,7 @@ def generate_launch_description():
         default_value=PathJoinSubstitution([
             FindPackageShare('robot_gazebo_sim'),
             'worlds',
-            'robot_office.sdf'
+            'tetra_office.sdf'
         ]),
         description='Path to the Gazebo world file'
     )
