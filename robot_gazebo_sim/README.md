@@ -599,6 +599,62 @@ gz model -m robot --joint
 watch -n 0.5 "gz model -m robot --joint | grep -A 5 'base_l_wheel_joint'"
 ```
 
+---
+
+## 🤖 다중 로봇(Multi-Robot) 시뮬레이션 및 관제 연동 가이드
+
+`robot_gazebo_sim`은 단일 월드 내에서 2대 이상의 TETRA 로봇을 서로 다른 네임스페이스와 모델로 동시에 실행하고, 각각의 **싱글 관제 서버(`tetra-single-api`)** 및 **통합 멀티 관제 서버(`TetraFleetManagement`)**와 100% 연동할 수 있도록 지원합니다.
+
+### 1. 다중 로봇 Gazebo 시뮬레이션 실행 (2대 동시 스폰)
+
+```bash
+source /opt/ros/jazzy/setup.bash
+source ~/tetra_integration/ros/install/setup.bash
+
+# Robot 1 (M 모델, 포트 9090, 위치 (0,0)) + Robot 2 (EDU 모델, 포트 9091, 위치 (2,1)) 실행
+ros2 launch robot_gazebo_sim multi_robot_sim.launch.py \
+  robot1_name:=robot1 robot1_model:=m robot1_x:=0.0 robot1_y:=0.0 robot1_port:=9090 \
+  robot2_name:=robot2 robot2_model:=edu robot2_x:=2.0 robot2_y:=1.0 robot2_port:=9091
+```
+
+- **`robot1`**: 네임스페이스 `/robot1`, ROSBridge WebSocket 포트 **`9090`**
+- **`robot2`**: 네임스페이스 `/robot2`, ROSBridge WebSocket 포트 **`9091`**
+
+---
+
+### 2. 각 로봇별 싱글 관제 서버(`tetra-single-api`) 기동
+
+각 로봇에 1:1로 매핑되는 싱글 관제 백엔드 서버를 서로 다른 포트로 기동합니다.
+
+#### 📌 Robot 1 싱글 관제 서버 (포트 3001)
+```bash
+cd ~/tetra_integration/TetraSingleManagement/tetra-single-api
+PORT=3001 ROS_PORT=9090 ROBOT_NAME=robot1 npm run dev
+```
+
+#### 📌 Robot 2 싱글 관제 서버 (포트 3002)
+```bash
+cd ~/tetra_integration/TetraSingleManagement/tetra-single-api
+PORT=3002 ROS_PORT=9091 ROBOT_NAME=robot2 npm run dev
+```
+
+---
+
+### 3. 통합 멀티 관제 서버(`TetraFleetManagement`) 기동 및 연결
+
+#### 📌 멀티 관제 백엔드 서버 기동 (포트 8000)
+```bash
+cd /home/tetra/multi/TetraFleetManagement/tetra-fleet-api
+PORT=8000 npm run dev
+```
+
+#### 📌 로봇 등록 및 실시간 연결 확인
+1. 브라우저에서 Swagger UI 접속: `http://localhost:8000/api-docs`
+2. **`POST /api/robots`** 엔드포인트로 2대의 로봇을 등록:
+   - **Robot 1**: `{"name": "TETRA-M-01", "ip": "http://localhost:3001", "model": "m", "serial_number": "TETRA-M-001"}`
+   - **Robot 2**: `{"name": "TETRA-EDU-01", "ip": "http://localhost:3002", "model": "edu", "serial_number": "TETRA-EDU-001"}`
+3. 멀티 관제 서버의 Robot Pool에서 각 싱글 관제 서버의 Socket.IO(`robot:tf`, `robot:battery`, `robot:speed` 등)에 자동 연결되어 실시간 텔레메트리 및 중앙 관제가 활성화됩니다.
+
 ## 버전 정보
 
 - **ROS2**: Jazzy Jalisco
