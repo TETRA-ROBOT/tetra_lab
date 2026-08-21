@@ -50,6 +50,8 @@ def generate_launch_description():
                 ]),
                 ' robot_model:=',
                 robot_model,
+                ' robot_name:=',
+                robot_name,
             ])
         }]
     )
