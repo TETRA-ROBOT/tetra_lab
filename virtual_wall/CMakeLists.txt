@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.5)
 project(virtual_wall)
 
-# Default to C++14
+# Default to C++17
 if(NOT CMAKE_CXX_STANDARD)
- set(CMAKE_CXX_STANDARD 14)
+ set(CMAKE_CXX_STANDARD 17)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -13,7 +13,6 @@ endif()
 # Dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(rmw_implementation REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(std_srvs REQUIRED)
 find_package(sensor_msgs REQUIRED)
@@ -22,20 +21,16 @@ find_package(tf2_ros REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
-find_package(pcl_ros REQUIRED)
-find_package(PCL REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
-# Ensure rosidl_generate_interfaces runs first
+# Generate custom service interface
 rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/AddVirtualWall.srv"
   DEPENDENCIES geometry_msgs
 )
 
-# Link the generated interfaces before building executables
+# Export runtime dependency
 find_package(rosidl_default_runtime REQUIRED)
-
-# Ensure generated headers are included
 ament_export_dependencies(rosidl_default_runtime)
 
 include_directories(
@@ -43,23 +38,18 @@ include_directories(
   ${PROJECT_SOURCE_DIR}/src
   ${rclcpp_INCLUDE_DIRS}
   ${geometry_msgs_INCLUDE_DIRS}
-  ${pcl_ros_INCLUDE_DIRS}
-  ${PCL_INCLUDE_DIRS}
   ${nav_msgs_INCLUDE_DIRS}
+  ${sensor_msgs_INCLUDE_DIRS}
+  ${tf2_INCLUDE_DIRS}
+  ${tf2_ros_INCLUDE_DIRS}
+  ${tf2_geometry_msgs_INCLUDE_DIRS}
 )
 
-# Add Executables
-add_executable(virtual_wall_m_node src/virtual_wall_m.cpp)
-add_executable(virtual_wall_h_node src/virtual_wall_h.cpp)
-add_executable(virtual_wall_edu_node src/virtual_wall_edu.cpp)
-add_executable(virtual_wall_mh_node src/virtual_wall_mh.cpp)
-add_executable(virtual_wall_s_node src/virtual_wall_s.cpp)
-add_executable(virtual_wall_sm_node src/virtual_wall_sm.cpp)
+# Add Executable
+add_executable(virtual_wall_node src/virtual_wall.cpp)
 
-# Set dependencies for the executable
 set(dependencies
   rclcpp
-  rmw_implementation
   std_msgs
   std_srvs
   sensor_msgs
@@ -70,25 +60,15 @@ set(dependencies
   nav_msgs
 )
 
-ament_target_dependencies(virtual_wall_m_node ${dependencies})
-ament_target_dependencies(virtual_wall_h_node ${dependencies})
-ament_target_dependencies(virtual_wall_edu_node ${dependencies})
-ament_target_dependencies(virtual_wall_mh_node ${dependencies})
-ament_target_dependencies(virtual_wall_s_node ${dependencies})
-ament_target_dependencies(virtual_wall_sm_node ${dependencies})
+ament_target_dependencies(virtual_wall_node ${dependencies})
 
-# Ensure message generation completes before building the node
+# Link the generated interface typesupport
 rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
-target_link_libraries(virtual_wall_m_node ${cpp_typesupport_target})
-target_link_libraries(virtual_wall_h_node ${cpp_typesupport_target})
-target_link_libraries(virtual_wall_edu_node ${cpp_typesupport_target})
-target_link_libraries(virtual_wall_mh_node ${cpp_typesupport_target})
-target_link_libraries(virtual_wall_s_node ${cpp_typesupport_target})
-target_link_libraries(virtual_wall_sm_node ${cpp_typesupport_target})
+target_link_libraries(virtual_wall_node ${cpp_typesupport_target})
 
 # Install
 install(TARGETS
-  virtual_wall_m_node virtual_wall_h_node virtual_wall_edu_node virtual_wall_mh_node virtual_wall_s_node virtual_wall_sm_node
+  virtual_wall_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
