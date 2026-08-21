@@ -650,9 +650,9 @@ PORT=8000 npm run dev
 
 #### 📌 로봇 등록 및 실시간 연결 확인
 1. 브라우저에서 Swagger UI 접속: `http://localhost:8000/api-docs`
-2. **`POST /api/robots`** 엔드포인트로 2대의 로봇을 등록:
-   - **Robot 1**: `{"name": "TETRA-M-01", "ip": "http://localhost:3001", "model": "m", "serial_number": "TETRA-M-001"}`
-   - **Robot 2**: `{"name": "TETRA-EDU-01", "ip": "http://localhost:3002", "model": "edu", "serial_number": "TETRA-EDU-001"}`
+2. **`POST /api/fleet/robots`** 엔드포인트로 2대의 로봇을 등록:
+   - **Robot 1**: `{"partner_id": 1, "name": "TETRA-M-01", "serial_no": "TETRA-M-001", "model_type": "TETRA-M", "ip_address": "127.0.0.1", "port": 3001}`
+   - **Robot 2**: `{"partner_id": 1, "name": "TETRA-EDU-01", "serial_no": "TETRA-EDU-001", "model_type": "TETRA-EDU", "ip_address": "127.0.0.1", "port": 3002}`
 3. 멀티 관제 서버의 Robot Pool에서 각 싱글 관제 서버의 Socket.IO(`robot:tf`, `robot:battery`, `robot:speed` 등)에 자동 연결되어 실시간 텔레메트리 및 중앙 관제가 활성화됩니다.
 
 ## 버전 정보
