@@ -17,6 +17,12 @@ def generate_launch_description():
         description='Use simulation time'
     )
 
+    robot_model_arg = DeclareLaunchArgument(
+        'robot_model',
+        default_value='m',
+        description='TETRA robot model (m, h, edu, mh, s, sm)'
+    )
+
     world_file_arg = DeclareLaunchArgument(
         'world_file',
         default_value=PathJoinSubstitution([
@@ -56,6 +62,7 @@ def generate_launch_description():
         ]),
         launch_arguments={
             'use_sim_time': LaunchConfiguration('use_sim_time'),
+            'robot_model': LaunchConfiguration('robot_model'),
             'world_file': LaunchConfiguration('world_file')
         }.items()
     )
@@ -91,6 +98,7 @@ def generate_launch_description():
 
     return LaunchDescription([
         use_sim_time_arg,
+        robot_model_arg,
         world_file_arg,
         slam_arg,
         navigation_arg,

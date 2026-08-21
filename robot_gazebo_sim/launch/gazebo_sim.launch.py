@@ -14,22 +14,29 @@ def generate_launch_description():
     
     # Get package paths
     robot_gazebo_sim_path = get_package_share_directory('robot_gazebo_sim')
+    try:
+        tetra_description_path = get_package_share_directory('tetra_description')
+    except Exception:
+        tetra_description_path = ''
     
     # Set Gazebo resource path to find meshes
-    # Gazebo Harmonic looks for model://package_name structure
-    # We need to provide the parent of 'share' directory (install/robot_gazebo_sim)
-    # So that Gazebo can find: install/robot_gazebo_sim/share/robot_gazebo_sim/meshes
     install_base = os.path.dirname(os.path.dirname(robot_gazebo_sim_path))  # .../install
     pkg_parent = os.path.dirname(robot_gazebo_sim_path)  # .../install/robot_gazebo_sim/share
     
+    resource_paths = [
+        install_base,
+        pkg_parent,
+        robot_gazebo_sim_path,
+    ]
+    if tetra_description_path:
+        resource_paths.append(tetra_description_path)
+        resource_paths.append(os.path.dirname(tetra_description_path))
+    if os.environ.get('GZ_SIM_RESOURCE_PATH'):
+        resource_paths.append(os.environ.get('GZ_SIM_RESOURCE_PATH'))
+
     gz_resource_path = SetEnvironmentVariable(
         name='GZ_SIM_RESOURCE_PATH',
-        value=':'.join([
-            install_base,
-            pkg_parent,
-            robot_gazebo_sim_path,
-            os.environ.get('GZ_SIM_RESOURCE_PATH', '')
-        ])
+        value=':'.join(resource_paths)
     )
 
     # Launch arguments
@@ -37,6 +44,12 @@ def generate_launch_description():
         'use_sim_time', 
         default_value='true',
         description='Use simulation time if true'
+    )
+
+    robot_model_arg = DeclareLaunchArgument(
+        'robot_model',
+        default_value='m',
+        description='TETRA robot model (m, h, edu, mh, s, sm)'
     )
 
     world_file_arg = DeclareLaunchArgument(
@@ -105,7 +118,9 @@ def generate_launch_description():
                     FindPackageShare('robot_gazebo_sim'),
                     'urdf',
                     'tetra_gazebo.xacro'
-                ])
+                ]),
+                ' robot_model:=',
+                LaunchConfiguration('robot_model'),
             ])
         }]
     )
@@ -206,6 +221,7 @@ def generate_launch_description():
         
         # Launch arguments
         use_sim_time_arg,
+        robot_model_arg,
         world_file_arg,
         robot_name_arg,
         x_pose_arg,

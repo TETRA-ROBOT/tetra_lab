@@ -1,11 +1,43 @@
 <?xml version="1.0"?>
-
 <robot name="robot_gazebo" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <!-- Include the base robot robot -->
-  <xacro:include filename="$(find robot_gazebo_sim)/urdf/tetra_base.xacro" />
+  <!-- Robot Model Argument: m, h, edu, mh, s, sm -->
+  <xacro:arg name="robot_model" default="m"/>
+  <xacro:property name="model" value="$(arg robot_model)"/>
 
-  <!-- Gazebo colors -->
+  <!-- Include Model Specific URDF from tetra_description -->
+  <xacro:include filename="$(find tetra_description)/urdf/tetra_robot.urdf.xacro" />
+
+  <!-- Model specific physical parameters for DiffDrive plugin -->
+  <xacro:property name="wheel_separation" value="0.4330"/>
+  <xacro:property name="wheel_radius" value="0.1033"/>
+
+  <xacro:if value="${model == 'h' or model == 'ds' or model == 'tetraDS'}">
+    <xacro:property name="wheel_separation" value="0.5194"/>
+    <xacro:property name="wheel_radius" value="0.0850"/>
+  </xacro:if>
+
+  <xacro:if value="${model == 'edu'}">
+    <xacro:property name="wheel_separation" value="0.3950"/>
+    <xacro:property name="wheel_radius" value="0.0750"/>
+  </xacro:if>
+
+  <xacro:if value="${model == 'mh'}">
+    <xacro:property name="wheel_separation" value="0.5194"/>
+    <xacro:property name="wheel_radius" value="0.0850"/>
+  </xacro:if>
+
+  <xacro:if value="${model == 's'}">
+    <xacro:property name="wheel_separation" value="0.3770"/>
+    <xacro:property name="wheel_radius" value="0.1015"/>
+  </xacro:if>
+
+  <xacro:if value="${model == 'sm'}">
+    <xacro:property name="wheel_separation" value="0.3884"/>
+    <xacro:property name="wheel_radius" value="0.0735"/>
+  </xacro:if>
+
+  <!-- Gazebo colors and physics for drive wheels -->
   <gazebo reference="base_link">
     <material>Gazebo/DarkGrey</material>
   </gazebo>
@@ -35,8 +67,8 @@
     <plugin filename="libgz-sim-diff-drive-system.so" name="gz::sim::systems::DiffDrive">
       <left_joint>base_l_wheel_joint</left_joint>
       <right_joint>base_r_wheel_joint</right_joint>
-      <wheel_separation>0.44</wheel_separation>
-      <wheel_radius>0.0508</wheel_radius>
+      <wheel_separation>${wheel_separation}</wheel_separation>
+      <wheel_radius>${wheel_radius}</wheel_radius>
       <odom_publish_frequency>30</odom_publish_frequency>
       <max_linear_velocity>1.0</max_linear_velocity>
       <min_linear_velocity>-1.0</min_linear_velocity>
