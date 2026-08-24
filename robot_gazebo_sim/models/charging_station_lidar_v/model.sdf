@@ -1,0 +1,68 @@
+<?xml version="1.0" ?>
+<sdf version="1.9">
+  <model name="charging_station_lidar_v">
+    <static>true</static>
+    <pose>0 0 0 0 0 0</pose>
+    
+    <link name="charging_station_link">
+      <!-- Main base collision (40cm Width (Y) x 20cm Depth (X) x 15cm Height (Z)) -->
+      <collision name="base_collision">
+        <pose>0 0 0.075 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.20 0.40 0.15</size>
+          </box>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>1.0</mu>
+              <mu2>1.0</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+
+      <!-- V-Shape Left Wing Collision (Angle = +25 deg from forward X, 130 deg total) -->
+      <collision name="v_left_wing_collision">
+        <pose>0.0125 0.0338 0.265 0 0 0.436332</pose>
+        <geometry>
+          <box>
+            <size>0.16 0.012 0.23</size>
+          </box>
+        </geometry>
+      </collision>
+
+      <!-- V-Shape Right Wing Collision (Angle = -25 deg from forward X, 130 deg total) -->
+      <collision name="v_right_wing_collision">
+        <pose>0.0125 -0.0338 0.265 0 0 -0.436332</pose>
+        <geometry>
+          <box>
+            <size>0.16 0.012 0.23</size>
+          </box>
+        </geometry>
+      </collision>
+
+      <!-- Support Post Collision -->
+      <collision name="back_post_collision">
+        <pose>-0.08 0 0.265 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.04 0.08 0.23</size>
+          </box>
+        </geometry>
+      </collision>
+
+      <!-- Visual via 3D OBJ mesh -->
+      <visual name="station_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://charging_station_lidar_v/meshes/charging_station_lidar_v.obj</uri>
+          </mesh>
+        </geometry>
+      </visual>
+
+    </link>
+  </model>
+</sdf>
