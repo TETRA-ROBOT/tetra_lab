@@ -4,7 +4,7 @@
   <name>virtual_wall</name>
   <version>0.0.1</version>
   <description>virtual_wall ROS2 package</description>
-  <maintainer email="wbjin@hyulimrobot.com">Wookbin Jin</maintainer>
+  <maintainer email="johny@hyulimatech.co.kr">johny</maintainer>
   <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>

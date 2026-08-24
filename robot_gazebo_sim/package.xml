@@ -4,7 +4,7 @@
   <version>1.0.0</version>
   <description>Gazebo simulation package for mobile robot</description>
   
-  <maintainer email="jyahn0302@gmail.com">johny</maintainer>
+  <maintainer email="johny@hyulimatech.co.kr">johny</maintainer>
   <license>MIT</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
