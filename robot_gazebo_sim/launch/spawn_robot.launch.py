@@ -115,14 +115,17 @@ def generate_launch_description():
         ]
     )
 
-    # Power status service for single management
-    power_data_read_service = Node(
+    # Simulation Power & Docking Manager for multi-robot
+    sim_power_docking_manager = Node(
         package='robot_gazebo_sim',
-        executable='power_data_read_service.py',
-        name=['power_service_', robot_name],
+        executable='sim_power_docking_manager.py',
+        name=['power_manager_', robot_name],
         namespace=robot_name,
         output='screen',
-        parameters=[{'use_sim_time': use_sim_time}]
+        parameters=[{
+            'use_sim_time': use_sim_time,
+            'odom_topic': 'odom'
+        }]
     )
 
     return LaunchDescription([
@@ -141,5 +144,5 @@ def generate_launch_description():
         spawn_robot,
         ros_gz_bridge,
         rosbridge_server,
-        power_data_read_service
+        sim_power_docking_manager
     ])

@@ -216,13 +216,16 @@ def generate_launch_description():
         condition=LaunchConfigurationNotEquals('use_fake_imu', 'false')
     )
 
-    # PowerDataRead 서비스 노드 추가
-    power_data_read_service = Node(
+    # Simulation Power & Docking Manager (배터리 시뮬레이션 및 도킹 상태/전원 토픽 실시간 발행)
+    sim_power_docking_manager = Node(
         package='robot_gazebo_sim',
-        executable='power_data_read_service.py',
-        name='power_data_read_service',
+        executable='sim_power_docking_manager.py',
+        name='sim_power_docking_manager',
         output='screen',
-        parameters=[{'use_sim_time': LaunchConfiguration('use_sim_time')}]
+        parameters=[{
+            'use_sim_time': LaunchConfiguration('use_sim_time'),
+            'odom_topic': 'odom'
+        }]
     )
 
     return LaunchDescription([
@@ -255,5 +258,5 @@ def generate_launch_description():
         spawn_robot,
         ros_gz_bridge,
         #fake_imu_publisher,
-        power_data_read_service,
+        sim_power_docking_manager,
     ])

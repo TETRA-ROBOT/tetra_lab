@@ -29,6 +29,7 @@ install(DIRECTORY
 install(PROGRAMS
   scripts/fake_imu_publisher.py
   scripts/power_data_read_service.py
+  scripts/sim_power_docking_manager.py
   DESTINATION lib/${PROJECT_NAME}/
 )
 
