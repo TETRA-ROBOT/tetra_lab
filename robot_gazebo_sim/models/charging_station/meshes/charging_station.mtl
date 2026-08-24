@@ -1,0 +1,26 @@
+# Materials for Charging Station
+newmtl StationBody
+Kd 0.18 0.18 0.20
+Ks 0.3 0.3 0.3
+Ns 30.0
+
+newmtl ChargingTerminal
+Kd 0.85 0.65 0.15
+Ks 0.8 0.8 0.8
+Ns 80.0
+
+newmtl Backplate
+Kd 0.25 0.25 0.27
+Ks 0.2 0.2 0.2
+Ns 20.0
+
+newmtl TagBoard
+Kd 1.0 1.0 1.0
+Ks 0.0 0.0 0.0
+Ns 10.0
+map_Kd ../materials/textures/tag36h11_0.png
+
+newmtl IndicatorLED
+Kd 0.1 0.9 0.2
+Ks 0.5 0.5 0.5
+Ns 50.0

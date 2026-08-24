@@ -245,5 +245,12 @@
       </link>
     </model>
 
+    <!-- Charging Station with AprilTag for Docking -->
+    <include>
+      <uri>model://charging_station</uri>
+      <name>charging_station</name>
+      <pose>4.8 0 0 0 0 3.14159</pose>
+    </include>
+
   </world>
 </sdf>

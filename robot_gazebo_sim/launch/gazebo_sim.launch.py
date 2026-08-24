@@ -27,6 +27,7 @@ def generate_launch_description():
         install_base,
         pkg_parent,
         robot_gazebo_sim_path,
+        os.path.join(robot_gazebo_sim_path, 'models'),
     ]
     if tetra_description_path:
         resource_paths.append(tetra_description_path)
@@ -34,9 +35,18 @@ def generate_launch_description():
     if os.environ.get('GZ_SIM_RESOURCE_PATH'):
         resource_paths.append(os.environ.get('GZ_SIM_RESOURCE_PATH'))
 
+    res_path_str = ':'.join(resource_paths)
     gz_resource_path = SetEnvironmentVariable(
         name='GZ_SIM_RESOURCE_PATH',
-        value=':'.join(resource_paths)
+        value=res_path_str
+    )
+    sdf_resource_path = SetEnvironmentVariable(
+        name='SDF_PATH',
+        value=res_path_str
+    )
+    ign_resource_path = SetEnvironmentVariable(
+        name='IGN_GAZEBO_RESOURCE_PATH',
+        value=res_path_str
     )
 
     # Launch arguments
@@ -218,6 +228,8 @@ def generate_launch_description():
     return LaunchDescription([
         # Set environment variables first
         gz_resource_path,
+        sdf_resource_path,
+        ign_resource_path,
         
         # Launch arguments
         use_sim_time_arg,

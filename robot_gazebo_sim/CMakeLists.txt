@@ -21,6 +21,7 @@ install(DIRECTORY
   params
   rviz
   meshes
+  models
   DESTINATION share/${PROJECT_NAME}/
 )
 
