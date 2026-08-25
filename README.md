@@ -1,53 +1,92 @@
 # tetra_lab
 
-TETRA 로봇의 연구 개발, 사전 검증 테스트, 시뮬레이션 및 실험적 기능들이 포함된 서브모듈입니다.
+TETRA 로봇의 연구 개발(R&D), 시뮬레이션, 사전 검증 테스트, 외부 통신 브릿지 및 실험적 기능들이 포함된 서브모듈입니다.
 
 ---
 
-## 1. 패키지 구성
+## 1. 패키지 구성 (Packages Overview)
 
-- **`virtual_wall`**: 가상 벽(Virtual Wall)을 생성하여 로봇의 주행 구역을 논리적으로 제한하거나 관리하는 패키지
-- **`robot_gazebo_sim`**: 실제 로봇 없이 Gazebo 상에서 TETRA 로봇을 스폰하고 2D LiDAR / Odometry / Navigation2 / SLAM 알고리즘을 테스트하는 3D 물리 시뮬레이션 환경 패키지
+| 패키지명 | 설명 | 주요 노드 및 런치 |
+|---|---|---|
+| **`robot_gazebo_sim`** | Gazebo 기반 TETRA 로봇 3D 물리 시뮬레이션 환경 (단일/다중 로봇 스폰, SLAM, Nav2 검증) | `gazebo_sim.launch.py`, `sim_bringup.launch.py`, `sim_navigation.launch.py`, `multi_robot_sim.launch.py` |
+| **`tcp_bridge`** | 외부 시스템(PLC, 상위 제어기 등)과 ROS2 간 TCP 소켓 통신을 중계하는 브릿지 패키지 | `tcp_server_node.cpp`, `tcp_client_node.cpp`, `tcp_bridge_server.launch.py`, `tcp_bridge_client.launch.py` |
+| **`tetra_gpio_controller`** | TETRA 로봇 GPIO 상태 모니터링 기반 컨베이어, Pan/Tilt 서보, 로봇 팔(Arm) 궤적 제어 노드 | `gpio_controller_node.py`, `gpio_controller.launch.py` |
+| **`velocity_integrator`** | 자율주행 속도 토픽(`/cmd_vel_nav`)을 수신하여 속도/이동량 적분 및 연산을 수행하는 유틸리티 노드 | `velocity_integrator_node.cpp`, `velocity_integrator.launch.py` |
 
 ---
 
-## 2. Gazebo 시뮬레이션 실행 가이드 (`robot_gazebo_sim`)
+## 2. 패키지별 상세 가이드 및 실행 방법
 
-### 2.1 Gazebo 시뮬레이션 기본 실행 (월드 + 로봇 스폰)
+### 2.1 Gazebo 3D 시뮬레이션 (`robot_gazebo_sim`)
+
+실제 로봇 없이 Gazebo 가상 환경에서 로봇 스폰 및 센서 데이터 확인, SLAM 매핑, Navigation2 자율주행을 검증합니다.
+
 ```bash
+# 1. Gazebo 가상 월드 실행 및 로봇 스폰
 ros2 launch robot_gazebo_sim gazebo_sim.launch.py
-```
 
-### 2.2 시뮬레이션 Bringup (State Publisher + EKF)
-```bash
+# 2. 시뮬레이션 Bringup (Robot State Publisher + EKF)
 ros2 launch robot_gazebo_sim sim_bringup.launch.py
-```
 
-### 2.3 시뮬레이션 RViz 시각화
-```bash
+# 3. RViz2 시각화
 ros2 launch robot_gazebo_sim rviz_sim.launch.py
-```
 
-### 2.4 시뮬레이션 환경 내비게이션2 (자율주행 테스트)
-```bash
+# 4. 시뮬레이션 자율주행 (Navigation2)
 ros2 launch robot_gazebo_sim sim_navigation.launch.py
-```
 
-### 2.5 원클릭 전체 시뮬레이션 실행 (Full Simulation)
-```bash
+# (원클릭) 전체 시뮬레이션 풀 런치
 ros2 launch robot_gazebo_sim full_sim.launch.py
 ```
 
 ---
 
-## 3. 가상벽 실행 가이드 (`virtual_wall`)
+### 2.2 TCP 통신 브릿지 (`tcp_bridge`)
 
-각 로봇 모델별 가상벽 노드 실행:
+외부 TCP 클라이언트/서버와 ROS2 간 데이터 송수신을 연결합니다.
+
 ```bash
-ros2 launch virtual_wall virtual_wall_m.launch.py     # M 모델
-ros2 launch virtual_wall virtual_wall_h.launch.py     # H 모델
-ros2 launch virtual_wall virtual_wall_edu.launch.py   # EDU 모델
-ros2 launch virtual_wall virtual_wall_mh.launch.py    # MH 모델
-ros2 launch virtual_wall virtual_wall_s.launch.py     # S 모델
-ros2 launch virtual_wall virtual_wall_sm.launch.py    # SM 모델
+# TCP 브릿지 서버 실행
+ros2 launch tcp_bridge tcp_bridge_server.launch.py
+
+# TCP 브릿지 클라이언트 실행
+ros2 launch tcp_bridge tcp_bridge_client.launch.py
 ```
+
+---
+
+### 2.3 TETRA GPIO 컨트롤러 (`tetra_gpio_controller`)
+
+TETRA 로봇의 GPIO 상태(`/gpio_status`)를 모니터링하고 입출력 신호 변화에 따라 컨베이어 이동, Pan/Tilt 카메라 구동, 로봇 팔 관절 제어 액션을 수행합니다.
+
+```bash
+# Launch 파일로 실행
+ros2 launch tetra_gpio_controller gpio_controller.launch.py
+
+# 또는 노드 직접 실행
+ros2 run tetra_gpio_controller gpio_controller_node
+```
+
+- **구독 토픽**: `/gpio_status` (`interfaces/msg/Gpio`)
+- **사용 서비스**:
+  - `/PanMove_cmd` (`herkulex/srv/PanAngleMove`): Pan 각도 제어
+  - `/TiltMove_cmd` (`herkulex/srv/TiltAngleMove`): Tilt 각도 제어
+  - `/Conveyor_auto_move_cmd` (`interfaces/srv/ConveyorAutoMovement`): 컨베이어 자동 이동
+  - `/Power_outport_cmd` (`interfaces/srv/PowerSetOutport`): GPIO 출력 제어
+- **사용 액션**:
+  - `/joint_trajectory_controller/follow_joint_trajectory` (`control_msgs/action/FollowJointTrajectory`): 로봇 팔 궤적 제어
+
+---
+
+### 2.4 속도 적분기 (`velocity_integrator`)
+
+내비게이션 노드에서 발행되는 속도 명령(`/cmd_vel_nav`)을 수신하여 적분 연산을 수행합니다.
+
+```bash
+# Launch 파일로 실행
+ros2 launch velocity_integrator velocity_integrator.launch.py
+
+# 또는 노드 직접 실행
+ros2 run velocity_integrator velocity_integrator_node
+```
+
+- **구독 토픽**: `/cmd_vel_nav` (`geometry_msgs/msg/Twist`)
