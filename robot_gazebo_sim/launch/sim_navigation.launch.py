@@ -3,7 +3,7 @@
 import os
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
-from launch.conditions import IfCondition
+from launch.conditions import IfCondition, UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, Command
 from launch_ros.actions import Node
@@ -40,13 +40,13 @@ def generate_launch_description():
     )
 
     nav2_navigation_launch_path = os.path.join(
-        get_package_share_directory('robot_navigation2'),
+        get_package_share_directory('tetra_navigation2'),
         'launch',
         'navigation_launch.py'
     )
 
     nav2_localization_launch_path = os.path.join(
-        get_package_share_directory('robot_navigation2'),
+        get_package_share_directory('tetra_navigation2'),
         'launch',
         'localization_launch.py'
     )
@@ -71,7 +71,7 @@ def generate_launch_description():
 
     # Dynamically constructed paths
     map_file_path = PathJoinSubstitution([
-        FindPackageShare('robot_navigation2'), 'maps', LaunchConfiguration('map_name')
+        FindPackageShare('tetra_navigation2'), 'maps', LaunchConfiguration('map_name')
     ])
 
     # SLAM launch (for simulation)
@@ -87,7 +87,7 @@ def generate_launch_description():
     # Localization launch (when not using SLAM)
     localization_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(nav2_localization_launch_path),
-        condition=IfCondition(LaunchConfiguration('slam')),
+        condition=UnlessCondition(LaunchConfiguration('slam')),
         launch_arguments={
                 'use_sim_time': LaunchConfiguration('use_sim_time'),
                 'params_file': localization_params_path,

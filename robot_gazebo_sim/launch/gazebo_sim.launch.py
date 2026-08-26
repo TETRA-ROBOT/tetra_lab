@@ -131,6 +131,8 @@ def generate_launch_description():
                 ]),
                 ' robot_model:=',
                 LaunchConfiguration('robot_model'),
+                ' robot_name:=',
+                LaunchConfiguration('robot_name'),
             ])
         }]
     )
