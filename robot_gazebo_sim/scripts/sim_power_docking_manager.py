@@ -4,7 +4,7 @@
 sim_power_docking_manager.py
 
 Gazebo 시뮬레이션 환경에서 로봇과 충전스테이션 간의 물리적 접촉/근접 상태를 실시간 감지하여,
-실제 하드웨어(tetra_interface)와 동일한 배터리, 전원, IMU, 센서 및 도킹 관련 ROS2 토픽과 서비스를 제공합니다.
+실제 하드웨어(tetra_power_driver)와 동일한 배터리, 전원, IMU, 센서 및 도킹 관련 ROS2 토픽과 서비스를 제공합니다.
 
 발행 토픽:
 - /docking_status (std_msgs/msg/Int32): 2 (도킹/충전 중), 1 (도킹 해제/일반 상태)
