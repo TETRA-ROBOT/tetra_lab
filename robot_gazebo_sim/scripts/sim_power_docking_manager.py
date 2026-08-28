@@ -4,7 +4,7 @@
 sim_power_docking_manager.py
 
 Gazebo 시뮬레이션 환경에서 로봇과 충전스테이션 간의 물리적 접촉/근접 상태를 실시간 감지하여,
-실제 하드웨어(tetra_interface)와 동일한 배터리 및 도킹 관련 ROS2 토픽과 서비스를 제공합니다.
+실제 하드웨어(tetra_interface)와 동일한 배터리, 전원, IMU, 센서 및 도킹 관련 ROS2 토픽과 서비스를 제공합니다.
 
 발행 토픽:
 - /docking_status (std_msgs/msg/Int32): 2 (도킹/충전 중), 1 (도킹 해제/일반 상태)
@@ -12,20 +12,27 @@ Gazebo 시뮬레이션 환경에서 로봇과 충전스테이션 간의 물리�
 - /battery_voltage (std_msgs/msg/Float64): 배터리 전압 (V)
 - /battery_current (std_msgs/msg/Float64): 충/방전 전류 (A)
 - /power_status (std_msgs/msg/Int32): 전원 보드 상태 (1)
+- /euler_roll (std_msgs/msg/Float64): 로봇 Roll 각도 (degree)
+- /euler_pitch (std_msgs/msg/Float64): 로봇 Pitch 각도 (degree)
+- /euler_yaw (std_msgs/msg/Float64): 로봇 Yaw 각도 (degree)
+- /bumper_data (std_msgs/msg/Int32): 범퍼 센서 상태 (0: 정상, 1: 충돌)
+- /emg_state (std_msgs/msg/Int32): 비상 정지 상태 (0: 정상, 1: EMG)
+- /Servo_ON (std_msgs/msg/Int32): 모터 서보 상태 (1: ON, 2: OFF)
 
 제공 서비스:
-- Power_data_read_cmd (interfaces/srv/PowerDataRead): 실시간 전원 데이터 응답
+- Power_data_read_cmd (interfaces/srv/PowerDataRead): 실시간 전원 모듈 데이터 응답
+- Power_adc_read_cmd (interfaces/srv/PowerAdcRead): 아날로그 ADC 전압 응답
 """
 
 import math
-import numpy as np
 import rclpy
 from rclpy.node import Node
+from rcl_interfaces.msg import SetParametersResult
 
 from std_msgs.msg import Int32, Float64
 from nav_msgs.msg import Odometry
-from geometry_msgs.msg import PoseStamped, Twist
-from interfaces.srv import PowerDataRead
+from geometry_msgs.msg import PoseStamped
+from interfaces.srv import PowerDataRead, PowerAdcRead
 
 
 class SimPowerDockingManager(Node):
@@ -35,14 +42,14 @@ class SimPowerDockingManager(Node):
         # ── 파라미터 선언 ──
         self.declare_parameter('use_sim_time', True)
         self.declare_parameter('odom_topic', 'odom')
-        self.declare_parameter('initial_battery', 80.0)             # 초기 배터리 (%)
+        self.declare_parameter('initial_battery', 75.0)             # 초기 배터리 (%)
         self.declare_parameter('charge_rate_pct_per_sec', 0.5)      # 도킹 시 초당 충전율 (%/s)
-        self.declare_parameter('discharge_rate_pct_per_sec', 0.02)  # 일반 주행 시 초당 방전율 (%/s)
-        self.declare_parameter('dock_dist_thresh', 0.32)            # 도킹 판정 거리 임계값 (m)
+        self.declare_parameter('discharge_rate_pct_per_sec', 0.05)  # 일반 주행 시 초당 방전율 (%/s)
+        self.declare_parameter('dock_dist_thresh', 0.35)            # 도킹 판정 거리 임계값 (m)
         self.declare_parameter('undock_dist_thresh', 0.45)          # 도킹 해제 거리 임계값 (m)
         self.declare_parameter('dock_angle_thresh_deg', 50.0)       # 도킹 대향 각도 허용 오차 (도)
 
-        # 기본 충전스테이션 위치 목록 (tetra_office.sdf 기본 위치 등)
+        # 기본 충전스테이션 위치 목록 (tetra_office.sdf 기본 위치)
         self.declare_parameter('stations_x', [4.8, 3.0])
         self.declare_parameter('stations_y', [0.0, 0.0])
         self.declare_parameter('stations_yaw', [3.14159, 3.14159])
@@ -61,11 +68,17 @@ class SimPowerDockingManager(Node):
         st_yaw = self.get_parameter('stations_yaw').value
         self.stations = list(zip(st_x, st_y, st_yaw))
 
+        # 파라미터 동적 변경 콜백 등록
+        self.add_on_set_parameters_callback(self._on_parameters_change)
+
         # ── 상태 변수 ──
-        self.robot_x = 0.0
+        self.robot_x = 4.35
         self.robot_y = 0.0
-        self.robot_yaw = 0.0
-        self.is_docked = False
+        self.robot_yaw = math.pi
+        self.robot_roll_deg = 0.0
+        self.robot_pitch_deg = 0.0
+        self.robot_yaw_deg = 180.0
+        self.is_docked = True  # 충전스테이션 도킹 상태로 시작
         self.last_update_time = self.get_clock().now()
         self.is_moving = False
 
@@ -76,6 +89,14 @@ class SimPowerDockingManager(Node):
         self.battery_current_pub = self.create_publisher(Float64, 'battery_current', 10)
         self.power_status_pub = self.create_publisher(Int32, 'power_status', 10)
 
+        self.euler_roll_pub = self.create_publisher(Float64, 'euler_roll', 10)
+        self.euler_pitch_pub = self.create_publisher(Float64, 'euler_pitch', 10)
+        self.euler_yaw_pub = self.create_publisher(Float64, 'euler_yaw', 10)
+
+        self.bumper_pub = self.create_publisher(Int32, 'bumper_data', 10)
+        self.emg_pub = self.create_publisher(Int32, 'emg_state', 10)
+        self.servo_pub = self.create_publisher(Int32, 'Servo_ON', 10)
+
         # ── Subscribers ──
         self.odom_sub = self.create_subscription(
             Odometry, self.odom_topic, self._odom_callback, 10)
@@ -84,26 +105,60 @@ class SimPowerDockingManager(Node):
         self.station_pose_sub = self.create_subscription(
             PoseStamped, 'add_charging_station_pose', self._add_station_callback, 10)
 
-        # ── Service ──
+        # ── Services ──
         self.power_data_srv = self.create_service(
             PowerDataRead, 'Power_data_read_cmd', self._power_data_callback)
+        self.power_adc_srv = self.create_service(
+            PowerAdcRead, 'Power_adc_read_cmd', self._power_adc_callback)
 
         # ── 10Hz 타이머 (상태 갱신 및 토픽 발행) ──
         self.timer = self.create_timer(0.1, self._update_and_publish)
 
         self.get_logger().info(
             f'SimPowerDockingManager started | Initial Battery: {self.battery_pct:.1f}% | '
-            f'Stations count: {len(self.stations)}')
+            f'Initial Docked: {self.is_docked} | Stations count: {len(self.stations)}')
+
+    def _on_parameters_change(self, params):
+        for param in params:
+            if param.name == 'discharge_rate_pct_per_sec':
+                self.discharge_rate = float(param.value)
+                self.get_logger().info(f'Updated discharge_rate: {self.discharge_rate} %/s')
+            elif param.name == 'charge_rate_pct_per_sec':
+                self.charge_rate = float(param.value)
+                self.get_logger().info(f'Updated charge_rate: {self.charge_rate} %/s')
+            elif param.name == 'initial_battery':
+                self.battery_pct = float(param.value)
+                self.get_logger().info(f'Updated battery_pct: {self.battery_pct} %')
+        return SetParametersResult(successful=True)
 
     def _odom_callback(self, msg: Odometry):
         self.robot_x = msg.pose.pose.position.x
         self.robot_y = msg.pose.pose.position.y
 
-        # Quaternion to Yaw
+        # Quaternion to Roll, Pitch, Yaw
         q = msg.pose.pose.orientation
+        
+        # Roll (x-axis rotation)
+        sinr_cosp = 2.0 * (q.w * q.x + q.y * q.z)
+        cosr_cosp = 1.0 - 2.0 * (q.x * q.x + q.y * q.y)
+        roll = math.atan2(sinr_cosp, cosr_cosp)
+
+        # Pitch (y-axis rotation)
+        sinp = 2.0 * (q.w * q.y - q.z * q.x)
+        if abs(sinp) >= 1.0:
+            pitch = math.copysign(math.pi / 2.0, sinp)
+        else:
+            pitch = math.asin(sinp)
+
+        # Yaw (z-axis rotation)
         siny_cosp = 2.0 * (q.w * q.z + q.x * q.y)
         cosy_cosp = 1.0 - 2.0 * (q.y * q.y + q.z * q.z)
-        self.robot_yaw = math.atan2(siny_cosp, cosy_cosp)
+        yaw = math.atan2(siny_cosp, cosy_cosp)
+
+        self.robot_yaw = yaw
+        self.robot_roll_deg = math.degrees(roll)
+        self.robot_pitch_deg = math.degrees(pitch)
+        self.robot_yaw_deg = math.degrees(yaw)
 
         # Speed check
         vx = msg.twist.twist.linear.x
@@ -169,22 +224,22 @@ class SimPowerDockingManager(Node):
 
         # 배터리 잔량 시뮬레이션
         if self.is_docked:
-            self.battery_pct = min(100.0, self.battery_pct + self.charge_rate * dt)
-            voltage = 24.0 + 4.8 * (self.battery_pct / 100.0)  # 완충 시 약 28.8V
-            current = +3.5                                     # 충전 전류 +3.5A
-            docking_code = 2                                   # tetra-single-api 도킹 상태 코드 (2: 도킹/충전중)
-            charge_signal = 14
-            terminal_status = 1
+            if self.battery_pct < 100.0:
+                self.battery_pct = min(100.0, self.battery_pct + self.charge_rate * dt)
+                current = +3.5  # 충전 중 전류 +3.5A
+            else:
+                current = +0.2  # 완충 유지 전류 +0.2A
+            
+            voltage = 24.0 + 4.8 * (self.battery_pct / 100.0)  # 완충 시 28.8V
+            docking_code = 2                                   # 2: 도킹/충전중
         else:
             discharge = self.discharge_rate * (2.5 if self.is_moving else 1.0)
             self.battery_pct = max(5.0, self.battery_pct - discharge * dt)
             voltage = 23.5 + 4.0 * (self.battery_pct / 100.0)  # 방전 시 23.5 ~ 27.5V
-            current = -1.8 if self.is_moving else -0.8        # 방전 전류
-            docking_code = 1                                   # tetra-single-api 정상 상태 코드 (1: 미도킹)
-            charge_signal = 0
-            terminal_status = 0
+            current = -1.8 if self.is_moving else -0.8        # 방전 전류 음수
+            docking_code = 1                                   # 1: 미도킹 일반상태
 
-        # 토픽 발행
+        # ── 토픽 발행 ──
         # 1) /docking_status
         msg_dock = Int32()
         msg_dock.data = int(docking_code)
@@ -210,22 +265,61 @@ class SimPowerDockingManager(Node):
         msg_pwr.data = 1
         self.power_status_pub.publish(msg_pwr)
 
+        # 6) IMU Euler angles (/euler_roll, /euler_pitch, /euler_yaw)
+        msg_roll = Float64()
+        msg_roll.data = float(self.robot_roll_deg)
+        self.euler_roll_pub.publish(msg_roll)
+
+        msg_pitch = Float64()
+        msg_pitch.data = float(self.robot_pitch_deg)
+        self.euler_pitch_pub.publish(msg_pitch)
+
+        msg_yaw = Float64()
+        msg_yaw.data = float(self.robot_yaw_deg)
+        self.euler_yaw_pub.publish(msg_yaw)
+
+        # 7) Hardware status (/bumper_data, /emg_state, /Servo_ON)
+        msg_bumper = Int32()
+        msg_bumper.data = 0
+        self.bumper_pub.publish(msg_bumper)
+
+        msg_emg = Int32()
+        msg_emg.data = 0
+        self.emg_pub.publish(msg_emg)
+
+        msg_servo = Int32()
+        msg_servo.data = 1
+        self.servo_pub.publish(msg_servo)
+
     def _power_data_callback(self, request, response):
         """Power_data_read_cmd 서비스 콜백"""
-        voltage_val = int((24.0 + 4.8 * (self.battery_pct / 100.0)) * 10)  # e.g. 288 for 28.8V
+        voltage_val = int((24.0 + 4.8 * (self.battery_pct / 100.0)) * 10)  # 28.8V -> 288
         
         response.d0_battery_voltage = voltage_val
-        response.d1_system_current = 15
-        response.d2_charge_current = 35 if self.is_docked else 0
+        response.d1_system_current = 15  # 1.5A
+        response.d2_charge_current = 35 if (self.is_docked and self.battery_pct < 99.5) else 0  # 3.5A
         response.d3_charge_signal = 14 if self.is_docked else 0
         response.d4_inport_status = 0
         response.d5_outport_status = 0
         response.d6_power_status = 63
-        response.d7_charger_terminal_status = 1 if self.is_docked else 0
-        response.d8_temperature0 = 310
-        response.d9_temperature1 = 285
+        response.d7_charge_terminal_status = 1 if self.is_docked else 0
+        response.d8_temperature0 = 295  # 29.5 °C
+        response.d9_temperature1 = 280  # 28.0 °C
         response.d10_mobd_inport_status = 15
         response.d11_mobd_outport_status = 0
+        response.command_result = True
+        return response
+
+    def _power_adc_callback(self, request, response):
+        """Power_adc_read_cmd 서비스 콜백"""
+        response.d0_adc0 = int((24.0 + 4.8 * (self.battery_pct / 100.0)) * 100)
+        response.d1_adc1 = 0
+        response.d2_adc2 = 0
+        response.d3_adc3 = 0
+        response.d4_adc4 = 0
+        response.d5_adc5 = 0
+        response.d6_adc6 = 0
+        response.d7_adc7 = 0
         response.command_result = True
         return response
 

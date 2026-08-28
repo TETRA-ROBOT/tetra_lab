@@ -80,8 +80,8 @@ def generate_launch_description():
 
     x_pose_arg = DeclareLaunchArgument(
         'x_pose',
-        default_value='0.0',
-        description='X position of the robot'
+        default_value='4.35',
+        description='X position of the robot (default: docked at charging station)'
     )
 
     y_pose_arg = DeclareLaunchArgument(
@@ -110,7 +110,7 @@ def generate_launch_description():
 
     yaw_arg = DeclareLaunchArgument(
         'yaw',
-        default_value='0.0',
+        default_value='3.14159',
         description='Yaw angle of the robot (rotation around Z axis)'
     )
 
