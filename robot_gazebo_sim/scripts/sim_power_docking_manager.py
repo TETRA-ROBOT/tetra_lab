@@ -40,7 +40,8 @@ class SimPowerDockingManager(Node):
         super().__init__('sim_power_docking_manager')
 
         # ── 파라미터 선언 ──
-        self.declare_parameter('use_sim_time', True)
+        if not self.has_parameter('use_sim_time'):
+            self.declare_parameter('use_sim_time', True)
         self.declare_parameter('odom_topic', 'odom')
         self.declare_parameter('initial_battery', 75.0)             # 초기 배터리 (%)
         self.declare_parameter('charge_rate_pct_per_sec', 0.5)      # 도킹 시 초당 충전율 (%/s)

@@ -275,7 +275,7 @@ docking_server:
     dock_backwards: false
     dock_prestaging_tolerance: 0.5
 
-    dock_plugins: ['simple_charging_dock']
+    dock_plugins: ['simple_charging_dock', 'tetra_charging_dock']
     simple_charging_dock:
       plugin: 'opennav_docking::SimpleChargingDock'
       docking_threshold: 0.05
@@ -283,6 +283,32 @@ docking_server:
       use_external_detection_pose: false
       use_battery_status: false
       use_stall_detection: false
+
+    tetra_charging_dock:
+      plugin: 'tetra_docking::TetraChargingDock'
+      docking_threshold: 0.05
+      staging_x_offset: -0.7
+      use_external_detection_pose: false
+      use_battery_status: false
+      use_stall_detection: false
+      marker_family: "tag36h11:"
+      camera_frame: "camera"
+      docking_status_topic: "docking_status"
+      contact_status_val: 2
+      reset_ekf_pose: false
+      home_x: 4.35
+      home_y: 0.0
+      filter_coef: 0.1
+
+    docks: ['0', 'home_dock']
+    '0':
+      type: 'tetra_charging_dock'
+      frame: 'map'
+      pose: [4.75, 0.0, 3.14159]
+    home_dock:
+      type: 'tetra_charging_dock'
+      frame: 'map'
+      pose: [4.75, 0.0, 3.14159]
 
     controller:
       k_phi: 3.0
