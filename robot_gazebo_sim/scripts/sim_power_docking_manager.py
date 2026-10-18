@@ -17,7 +17,7 @@ Gazebo 시뮬레이션 환경에서 로봇과 충전스테이션 간의 물리�
 - /euler_yaw (std_msgs/msg/Float64): 로봇 Yaw 각도 (degree)
 - /bumper_data (std_msgs/msg/Int32): 범퍼 센서 상태 (0: 정상, 1: 충돌)
 - /emg_state (std_msgs/msg/Int32): 비상 정지 상태 (0: 정상, 1: EMG)
-- /Servo_ON (std_msgs/msg/Int32): 모터 서보 상태 (1: ON, 2: OFF)
+- /servo_state (std_msgs/msg/Int32): 모터 서보 상태 (1: ON, 2: OFF)
 
 제공 서비스:
 - Power_data_read_cmd (interfaces/srv/PowerDataRead): 실시간 전원 모듈 데이터 응답
@@ -96,7 +96,7 @@ class SimPowerDockingManager(Node):
 
         self.bumper_pub = self.create_publisher(Int32, 'bumper_data', 10)
         self.emg_pub = self.create_publisher(Int32, 'emg_state', 10)
-        self.servo_pub = self.create_publisher(Int32, 'Servo_ON', 10)
+        self.servo_pub = self.create_publisher(Int32, 'servo_state', 10)
 
         # ── Subscribers ──
         self.odom_sub = self.create_subscription(
@@ -279,7 +279,7 @@ class SimPowerDockingManager(Node):
         msg_yaw.data = float(self.robot_yaw_deg)
         self.euler_yaw_pub.publish(msg_yaw)
 
-        # 7) Hardware status (/bumper_data, /emg_state, /Servo_ON)
+        # 7) Hardware status (/bumper_data, /emg_state, /servo_state)
         msg_bumper = Int32()
         msg_bumper.data = 0
         self.bumper_pub.publish(msg_bumper)
