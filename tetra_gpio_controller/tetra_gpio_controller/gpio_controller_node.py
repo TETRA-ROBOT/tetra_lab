@@ -17,7 +17,15 @@ from interfaces.srv import PowerSetOutport, ConveyorAutoMovement
 from control_msgs.action import FollowJointTrajectory
 from trajectory_msgs.msg import JointTrajectoryPoint
 from builtin_interfaces.msg import Duration
-from herkulex.srv import PanAngleMove, TiltAngleMove
+from herkulex_driver.srv import SetAngle
+
+
+# MH 팬틸트 서보 ID (tetra_bringup/params/herkulex_mh.yaml)
+PAN_SERVO_ID = 1
+TILT_SERVO_ID = 2
+# HerkuleX 서보의 playtime 한 단위
+HERKULEX_PLAYTIME_UNIT_MS = 11.2
+HERKULEX_LED_GREEN = 1
 
 
 class GpioControllerNode(Node):
@@ -59,15 +67,11 @@ class GpioControllerNode(Node):
             '/joint_trajectory_controller/follow_joint_trajectory'
         )
         
-        # Pan/Tilt 제어 서비스 클라이언트
-        self.pan_move_client = self.create_client(
-            PanAngleMove,
-            'PanMove_cmd'
-        )
-        
-        self.tilt_move_client = self.create_client(
-            TiltAngleMove,
-            'TiltMove_cmd'
+        # Pan/Tilt 제어: MH bringup 이 띄우는 herkulex_driver 의 set_angle 서비스를 쓴다.
+        # 예전 herkulex 패키지의 PanMove_cmd/TiltMove_cmd 는 더 이상 띄우지 않아 팬틸트가 움직이지 않았다
+        self.set_angle_client = self.create_client(
+            SetAngle,
+            'herkulex/set_angle'
         )
         
         # Conveyor 제어 서비스 클라이언트
@@ -331,41 +335,42 @@ class GpioControllerNode(Node):
             self.get_logger().error(f'서비스 호출 중 오류: {str(e)}')
     
     def call_pan_move(self, target_angle: float, playtime: int) -> None:
-        """PanMove_cmd 서비스 호출"""
-        if not self.pan_move_client.wait_for_service(timeout_sec=5.0):
-            self.get_logger().error('PanMove_cmd 서비스를 찾을 수 없습니다!')
-            return
-        
-        request = PanAngleMove.Request()
-        request.target_angle = float(target_angle)
-        request.playtime = int(playtime)
-        
-        self.get_logger().info(f'PanMove_cmd 서비스 호출 (angle={target_angle}도, playtime={playtime})')
-        future = self.pan_move_client.call_async(request)
-        future.add_done_callback(self.pan_tilt_response_callback)
-    
+        """팬(서보 ID 1)을 target_angle 도로 이동"""
+        self.call_servo_angle(PAN_SERVO_ID, 'Pan', target_angle, playtime)
+
     def call_tilt_move(self, target_angle: float, playtime: int) -> None:
-        """TiltMove_cmd 서비스 호출"""
-        if not self.tilt_move_client.wait_for_service(timeout_sec=5.0):
-            self.get_logger().error('TiltMove_cmd 서비스를 찾을 수 없습니다!')
+        """틸트(서보 ID 2)를 target_angle 도로 이동"""
+        self.call_servo_angle(TILT_SERVO_ID, 'Tilt', target_angle, playtime)
+
+    def call_servo_angle(self, servo_id: int, label: str, target_angle: float, playtime: int) -> None:
+        """herkulex/set_angle 서비스 호출
+
+        예전 herkulex 패키지와 같은 위치·속도로 움직이도록 변환한다:
+        - 예전 팬틸트 노드는 기어비 -1.0 을 곱해 방향이 반대였다 → goal_angle = -target_angle
+        - 예전 playtime 은 서보 단위(11.2ms) 그대로였다 → playtime_ms = playtime * 11.2
+        """
+        if not self.set_angle_client.wait_for_service(timeout_sec=5.0):
+            self.get_logger().error('herkulex/set_angle 서비스를 찾을 수 없습니다! (herkulex_driver 실행 여부 확인)')
             return
-        
-        request = TiltAngleMove.Request()
-        request.target_angle = float(target_angle)
-        request.playtime = int(playtime)
-        
-        self.get_logger().info(f'TiltMove_cmd 서비스 호출 (angle={target_angle}도, playtime={playtime})')
-        future = self.tilt_move_client.call_async(request)
+
+        request = SetAngle.Request()
+        request.servo_id = servo_id
+        request.goal_angle = float(-target_angle)
+        request.playtime_ms = int(round(playtime * HERKULEX_PLAYTIME_UNIT_MS))
+        request.led_color = HERKULEX_LED_GREEN
+
+        self.get_logger().info(f'{label} 이동 요청 (angle={target_angle}도, playtime={request.playtime_ms}ms)')
+        future = self.set_angle_client.call_async(request)
         future.add_done_callback(self.pan_tilt_response_callback)
-    
+
     def pan_tilt_response_callback(self, future: Future) -> None:
         """Pan/Tilt 서비스 응답 콜백"""
         try:
             response = future.result()
-            if response.command_result:
+            if response.success:
                 self.get_logger().info('Pan/Tilt 명령 성공')
             else:
-                self.get_logger().error('Pan/Tilt 명령 실패')
+                self.get_logger().error(f'Pan/Tilt 명령 실패: {response.message}')
         except Exception as e:
             self.get_logger().error(f'Pan/Tilt 서비스 호출 중 오류: {str(e)}')
     

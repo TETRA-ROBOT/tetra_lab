@@ -12,16 +12,16 @@
   - Conveyor_auto_move_cmd로 start=8 전송
   - output1을 0으로 리셋
 - `output2` 변화 감지 시 (0→1):
-  - PanMove_cmd로 90도 회전
+  - herkulex/set_angle 로 팬(서보 1) 90도 회전
   - output2를 0으로 리셋
 - `output3` 변화 감지 시 (0→1):
-  - PanMove_cmd로 0도 이동
+  - herkulex/set_angle 로 팬(서보 1) 0도 이동
   - output3을 0으로 리셋
 - `output4` 변화 감지 시 (0→1):
-  - TiltMove_cmd로 80도 이동
+  - herkulex/set_angle 로 틸트(서보 2) 80도 이동
   - output4를 0으로 리셋
 - `output5` 변화 감지 시 (0→1):
-  - TiltMove_cmd로 0도 이동
+  - herkulex/set_angle 로 틸트(서보 2) 0도 이동
   - output5를 0으로 리셋
 - `output6` 변화 감지 시 (0→1):
   - 모든 조인트를 0도로 이동 (6초)
@@ -57,7 +57,7 @@ ros2 run tetra_gpio_controller gpio_controller_node
 - control_msgs
 - std_msgs
 - action_msgs
-- herkulex (Pan/Tilt 제어)
+- herkulex_driver (Pan/Tilt 제어, tetra_dependency)
 
 ## 토픽 및 서비스
 
@@ -65,8 +65,8 @@ ros2 run tetra_gpio_controller gpio_controller_node
 - `/gpio_status` (interfaces/msg/Gpio): GPIO 입출력 상태
 
 ### 사용하는 서비스
-- `/PanMove_cmd` (herkulex/srv/PanAngleMove): Pan 각도 제어
-- `/TiltMove_cmd` (herkulex/srv/TiltAngleMove): Tilt 각도 제어
+- `herkulex/set_angle` (herkulex_driver/srv/SetAngle): Pan(서보 1)·Tilt(서보 2) 각도 제어.
+  예전 herkulex 패키지와 같은 움직임이 되도록 각도 부호를 뒤집고(예전 기어비 -1.0) playtime 100 → 1120ms 로 보냅니다.
 - `/Conveyor_auto_move_cmd` (interfaces/srv/ConveyorAutoMovement): Conveyor 자동 이동 제어
 - `/Power_outport_cmd` (interfaces/srv/PowerSetOutport): GPIO 출력 제어
 

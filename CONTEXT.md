@@ -16,8 +16,8 @@ R&D 실험, Gazebo 3D 시뮬레이션, 외부 TCP 통신 브릿지, GPIO 기반 
 
 - `output0 == 1`: 컨베이어 시작 (`start=0`)
 - `output1 == 1`: 컨베이어 역방향 (`start=8`)
-- `output2 == 1`: Pan 90도 회전 (`PanMove_cmd`)
+- `output2 == 1`: Pan 90도 회전 (`herkulex/set_angle`, 서보 1. 틸트는 서보 2)
 - `output3 == 1`: Pan 0도 복귀
-- `output4 == 1`: Tilt 80도 회전 (`TiltMove_cmd`)
+- `output4 == 1`: Tilt 80도 회전 (`herkulex/set_angle`, 서보 2)
 - `output5 == 1`: Tilt 0도 복귀
 - `output6 == 1`: 관절 궤적(Joint Trajectory) 실행
