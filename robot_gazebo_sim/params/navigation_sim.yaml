@@ -295,9 +295,6 @@ docking_server:
       camera_frame: "camera"
       docking_status_topic: "docking_status"
       contact_status_val: 2
-      reset_ekf_pose: false
-      home_x: 4.35
-      home_y: 0.0
       filter_coef: 0.1
 
     docks: ['0', 'home_dock']
