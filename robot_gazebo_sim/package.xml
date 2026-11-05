@@ -23,7 +23,6 @@
   <!-- Gazebo dependencies -->
   <depend>ros_gz_sim</depend>
   <depend>ros_gz_bridge</depend>
-  <depend>gazebo_ros_pkgs</depend>
   
   <!-- Robot description -->
   <depend>tetra_description</depend>
