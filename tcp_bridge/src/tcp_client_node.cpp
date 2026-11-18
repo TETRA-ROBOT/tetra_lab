@@ -49,14 +49,14 @@ public:
         //publisher list////////////////////////////////////////////////////////////////////////////
         from_ros1_publisher = this->create_publisher<std_msgs::msg::String>("from_ros1", 10);
 
-        cmd_vel_publisher = this->create_publisher<geometry_msgs::msg::Twist>("cmd_vel_PI", 10);
+        cmd_vel_publisher = this->create_publisher<geometry_msgs::msg::Twist>("cmd_vel_pi", 10);
 
         sonic_1_publisher = this->create_publisher<std_msgs::msg::Float64>("sonic_1", 10);
         sonic_2_publisher = this->create_publisher<std_msgs::msg::Float64>("sonic_2", 10);
         sonic_3_publisher = this->create_publisher<std_msgs::msg::Float64>("sonic_3", 10);
         sonic_4_publisher = this->create_publisher<std_msgs::msg::Float64>("sonic_4", 10);
 
-        rader_publisher = this->create_publisher<std_msgs::msg::Float64>("rader", 10);
+        radar_publisher = this->create_publisher<std_msgs::msg::Float64>("radar", 10);
         lidar_1_publisher = this->create_publisher<std_msgs::msg::Int32>("lidar_1", 1);
         dir_publisher = this->create_publisher<std_msgs::msg::Int32>("dir", 1);
 
@@ -202,7 +202,7 @@ private:
                     }
 
                     /**********************************************************************************/
-                    //cmd_vel_PI
+                    //cmd_vel_pi
                     auto msg3 = geometry_msgs::msg::Twist();
                     msg3.linear.x = atof(tokens[3].c_str());
                     msg3.angular.z = 0.0;
@@ -225,10 +225,10 @@ private:
                     msg7.data = atof(tokens[7].c_str());
                     sonic_4_publisher->publish(msg7);
 
-                    //rader
+                    //radar
                     auto msg8 = std_msgs::msg::Float64();
                     msg8.data = atof(tokens[7].c_str());
-                    rader_publisher->publish(msg8);
+                    radar_publisher->publish(msg8);
                     //lidar_1
                     auto msg9 = std_msgs::msg::Int32();
                     msg9.data = atoi(tokens[8].c_str());
@@ -313,7 +313,7 @@ private:
     rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr sonic_2_publisher;
     rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr sonic_3_publisher;
     rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr sonic_4_publisher;
-    rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr rader_publisher;
+    rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr radar_publisher;
     rclcpp::Publisher<std_msgs::msg::Int32>::SharedPtr lidar_1_publisher;
     rclcpp::Publisher<std_msgs::msg::Int32>::SharedPtr dir_publisher;
     rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr infrared_1_publisher;

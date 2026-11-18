@@ -7,7 +7,7 @@ from interfaces.srv import PowerDataRead
 class PowerDataReadService(Node):
     def __init__(self):
         super().__init__('power_data_read_service')
-        self.srv = self.create_service(PowerDataRead, 'Power_data_read_cmd', self.callback)
+        self.srv = self.create_service(PowerDataRead, 'power_data_read_cmd', self.callback)
 
     def callback(self, request, response):
         response.d0_battery_voltage = 540

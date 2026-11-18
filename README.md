@@ -69,8 +69,8 @@ ros2 run tetra_gpio_controller gpio_controller_node
 - **구독 토픽**: `/gpio_status` (`interfaces/msg/Gpio`)
 - **사용 서비스**:
   - `herkulex/set_angle` (`herkulex_driver/srv/SetAngle`): Pan(서보 1)·Tilt(서보 2) 각도 제어
-  - `/Conveyor_auto_move_cmd` (`interfaces/srv/ConveyorAutoMovement`): 컨베이어 자동 이동
-  - `/Power_outport_cmd` (`interfaces/srv/PowerSetOutport`): GPIO 출력 제어
+  - `/conveyor_auto_move_cmd` (`interfaces/srv/ConveyorAutoMovement`): 컨베이어 자동 이동
+  - `/power_outport_cmd` (`interfaces/srv/PowerSetOutport`): GPIO 출력 제어
 - **사용 액션**:
   - `/joint_trajectory_controller/follow_joint_trajectory` (`control_msgs/action/FollowJointTrajectory`): 로봇 팔 궤적 제어
 

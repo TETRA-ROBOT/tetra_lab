@@ -20,8 +20,8 @@ Gazebo 시뮬레이션 환경에서 로봇과 충전스테이션 간의 물리�
 - /servo_state (std_msgs/msg/Int32): 모터 서보 상태 (1: ON, 2: OFF)
 
 제공 서비스:
-- Power_data_read_cmd (interfaces/srv/PowerDataRead): 실시간 전원 모듈 데이터 응답
-- Power_adc_read_cmd (interfaces/srv/PowerAdcRead): 아날로그 ADC 전압 응답
+- power_data_read_cmd (interfaces/srv/PowerDataRead): 실시간 전원 모듈 데이터 응답
+- power_adc_read_cmd (interfaces/srv/PowerAdcRead): 아날로그 ADC 전압 응답
 """
 
 import math
@@ -108,9 +108,9 @@ class SimPowerDockingManager(Node):
 
         # ── Services ──
         self.power_data_srv = self.create_service(
-            PowerDataRead, 'Power_data_read_cmd', self._power_data_callback)
+            PowerDataRead, 'power_data_read_cmd', self._power_data_callback)
         self.power_adc_srv = self.create_service(
-            PowerAdcRead, 'Power_adc_read_cmd', self._power_adc_callback)
+            PowerAdcRead, 'power_adc_read_cmd', self._power_adc_callback)
 
         # ── 10Hz 타이머 (상태 갱신 및 토픽 발행) ──
         self.timer = self.create_timer(0.1, self._update_and_publish)
@@ -293,7 +293,7 @@ class SimPowerDockingManager(Node):
         self.servo_pub.publish(msg_servo)
 
     def _power_data_callback(self, request, response):
-        """Power_data_read_cmd 서비스 콜백"""
+        """power_data_read_cmd 서비스 콜백"""
         voltage_val = int((24.0 + 4.8 * (self.battery_pct / 100.0)) * 10)  # 28.8V -> 288
         
         response.d0_battery_voltage = voltage_val
@@ -312,7 +312,7 @@ class SimPowerDockingManager(Node):
         return response
 
     def _power_adc_callback(self, request, response):
-        """Power_adc_read_cmd 서비스 콜백"""
+        """power_adc_read_cmd 서비스 콜백"""
         response.d0_adc0 = int((24.0 + 4.8 * (self.battery_pct / 100.0)) * 100)
         response.d1_adc1 = 0
         response.d2_adc2 = 0

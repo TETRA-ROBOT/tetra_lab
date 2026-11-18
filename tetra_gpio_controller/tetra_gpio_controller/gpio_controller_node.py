@@ -57,7 +57,7 @@ class GpioControllerNode(Node):
         # Power outport 서비스 클라이언트
         self.power_outport_client = self.create_client(
             PowerSetOutport,
-            'Power_outport_cmd'
+            'power_outport_cmd'
         )
         
         # Follow Joint Trajectory 액션 클라이언트
@@ -77,7 +77,7 @@ class GpioControllerNode(Node):
         # Conveyor 제어 서비스 클라이언트
         self.conveyor_auto_move_client = self.create_client(
             ConveyorAutoMovement,
-            'Conveyor_auto_move_cmd'
+            'conveyor_auto_move_cmd'
         )
         
         self.get_logger().info('GPIO Controller Node 시작됨')
@@ -304,9 +304,9 @@ class GpioControllerNode(Node):
         output6: int,
         output7: int
     ) -> None:
-        """Power_outport_cmd 서비스 호출"""
+        """power_outport_cmd 서비스 호출"""
         if not self.power_outport_client.wait_for_service(timeout_sec=5.0):
-            self.get_logger().error('Power_outport_cmd 서비스를 찾을 수 없습니다!')
+            self.get_logger().error('power_outport_cmd 서비스를 찾을 수 없습니다!')
             return
         
         request = PowerSetOutport.Request()
@@ -319,7 +319,7 @@ class GpioControllerNode(Node):
         request.output6 = output6
         request.output7 = output7
         
-        self.get_logger().info('Power_outport_cmd 서비스 호출')
+        self.get_logger().info('power_outport_cmd 서비스 호출')
         future = self.power_outport_client.call_async(request)
         future.add_done_callback(self.service_response_callback)
     
@@ -328,9 +328,9 @@ class GpioControllerNode(Node):
         try:
             response = future.result()
             if response.command_result:
-                self.get_logger().info('Power_outport_cmd 서비스 호출 성공')
+                self.get_logger().info('power_outport_cmd 서비스 호출 성공')
             else:
-                self.get_logger().error('Power_outport_cmd 서비스 호출 실패')
+                self.get_logger().error('power_outport_cmd 서비스 호출 실패')
         except Exception as e:
             self.get_logger().error(f'서비스 호출 중 오류: {str(e)}')
     
@@ -375,15 +375,15 @@ class GpioControllerNode(Node):
             self.get_logger().error(f'Pan/Tilt 서비스 호출 중 오류: {str(e)}')
     
     def call_conveyor_auto_move(self, start_value: int) -> None:
-        """Conveyor_auto_move_cmd 서비스 호출"""
+        """conveyor_auto_move_cmd 서비스 호출"""
         if not self.conveyor_auto_move_client.wait_for_service(timeout_sec=5.0):
-            self.get_logger().error('Conveyor_auto_move_cmd 서비스를 찾을 수 없습니다!')
+            self.get_logger().error('conveyor_auto_move_cmd 서비스를 찾을 수 없습니다!')
             return
         
         request = ConveyorAutoMovement.Request()
         request.start = int(start_value)
         
-        self.get_logger().info(f'Conveyor_auto_move_cmd 서비스 호출 (start={start_value})')
+        self.get_logger().info(f'conveyor_auto_move_cmd 서비스 호출 (start={start_value})')
         future = self.conveyor_auto_move_client.call_async(request)
         future.add_done_callback(self.conveyor_response_callback)
     

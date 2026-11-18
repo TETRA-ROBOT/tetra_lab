@@ -6,10 +6,10 @@
 
 - `gpio_status` 토픽 구독하여 GPIO 상태 모니터링
 - `output0` 변화 감지 시 (0→1):
-  - Conveyor_auto_move_cmd로 start=0 전송
+  - conveyor_auto_move_cmd로 start=0 전송
   - output0을 0으로 리셋
 - `output1` 변화 감지 시 (0→1):
-  - Conveyor_auto_move_cmd로 start=8 전송
+  - conveyor_auto_move_cmd로 start=8 전송
   - output1을 0으로 리셋
 - `output2` 변화 감지 시 (0→1):
   - herkulex/set_angle 로 팬(서보 1) 90도 회전
@@ -67,8 +67,8 @@ ros2 run tetra_gpio_controller gpio_controller_node
 ### 사용하는 서비스
 - `herkulex/set_angle` (herkulex_driver/srv/SetAngle): Pan(서보 1)·Tilt(서보 2) 각도 제어.
   예전 herkulex 패키지와 같은 움직임이 되도록 각도 부호를 뒤집고(예전 기어비 -1.0) playtime 100 → 1120ms 로 보냅니다.
-- `/Conveyor_auto_move_cmd` (interfaces/srv/ConveyorAutoMovement): Conveyor 자동 이동 제어
-- `/Power_outport_cmd` (interfaces/srv/PowerSetOutport): GPIO 출력 제어
+- `/conveyor_auto_move_cmd` (interfaces/srv/ConveyorAutoMovement): Conveyor 자동 이동 제어
+- `/power_outport_cmd` (interfaces/srv/PowerSetOutport): GPIO 출력 제어
 
 ### 사용하는 액션
 - `/joint_trajectory_controller/follow_joint_trajectory` (control_msgs/action/FollowJointTrajectory): 로봇 팔 궤적 제어
