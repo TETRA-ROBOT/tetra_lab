@@ -11,6 +11,7 @@ R&D 실험, Gazebo 3D 시뮬레이션, 외부 TCP 통신 브릿지, GPIO 기반 
 | `tcp_bridge` | C++ | 외부 시스템(PLC, MES, 외부 관제 서버)과 JSON/TCP 소켓으로 명령 및 텔레메트리를 송수신하는 브릿지 노드 |
 | `robot_gazebo_sim` | C++/XML | Gazebo 물리 시뮬레이션 월드 및 로봇 스폰 런치 |
 | `velocity_integrator` | C++ | 속도 명령 적분 및 누적 위치 추정 노드 |
+| `tetra_mmwave_radar` | Python | (실험) DFRobot SEN0395 mmWave 레이더 UART 드라이버. 프로토콜(`protocol.py`, ROS 비의존·단위테스트)과 노드 분리. 설정은 센서 플래시에 저장되므로 기본값은 쓰지 않음 |
 
 ## GPIO 제어 매핑
 

@@ -12,6 +12,7 @@ TETRA 로봇의 연구 개발(R&D), 시뮬레이션, 사전 검증 테스트, �
 | **`tcp_bridge`** | 외부 시스템(PLC, 상위 제어기 등)과 ROS2 간 TCP 소켓 통신을 중계하는 브릿지 패키지 | `tcp_server_node.cpp`, `tcp_client_node.cpp`, `tcp_bridge_server.launch.py`, `tcp_bridge_client.launch.py` |
 | **`tetra_gpio_controller`** | TETRA 로봇 GPIO 상태 모니터링 기반 컨베이어, Pan/Tilt 서보, 로봇 팔(Arm) 궤적 제어 노드 | `gpio_controller_node.py`, `gpio_controller.launch.py` |
 | **`velocity_integrator`** | 자율주행 속도 토픽(`/cmd_vel_nav`)을 수신하여 속도/이동량 적분 및 연산을 수행하는 유틸리티 노드 | `velocity_integrator_node.cpp`, `velocity_integrator.launch.py` |
+| **`tetra_mmwave_radar`** | (실험) DFRobot SEN0395 24GHz mmWave 인체 감지 레이더 UART 드라이버 | `mmwave_radar_node.py`, `mmwave_radar.launch.py` |
 
 ---
 
@@ -89,3 +90,14 @@ ros2 run velocity_integrator velocity_integrator_node
 ```
 
 - **구독 토픽**: `/cmd_vel_nav` (`geometry_msgs/msg/Twist`)
+
+---
+
+### 2.5 mmWave 인체 감지 레이더 (`tetra_mmwave_radar`, 실험)
+
+DFRobot SEN0395 (24GHz FMCW) 레이더를 USB-UART(115200bps)로 읽어 사람 유무를 발행합니다. 자세한 내용은 [`tetra_mmwave_radar/README.md`](tetra_mmwave_radar/README.md).
+
+```bash
+ros2 launch tetra_mmwave_radar mmwave_radar.launch.py port:=/dev/ttyUSB0
+ros2 topic echo /mmwave_radar/presence_changed
+```
