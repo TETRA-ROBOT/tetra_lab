@@ -23,7 +23,7 @@ ros2 topic echo /mmwave_radar/presence_changed
 
 | 이름 | 타입 | 설명 |
 |---|---|---|
-| `presence` | `std_msgs/Bool` | 센서 프레임마다 발행 |
+| `presence` | `std_msgs/Bool` | 센서 프레임마다 발행 (약 1Hz) |
 | `presence_changed` | `std_msgs/Bool` | 값이 바뀔 때만 (TRANSIENT_LOCAL, 늦게 구독해도 현재 값 수신) |
 | `/diagnostics` | `diagnostic_msgs/DiagnosticArray` | 1Hz. 포트 미개방 ERROR, `stale_timeout_s` 동안 프레임 없음 WARN |
 | `apply_config` | `std_srvs/Trigger` | `detection_ranges`, 지연시간 파라미터를 센서 **플래시에 저장** |
@@ -36,7 +36,7 @@ ros2 topic echo /mmwave_radar/presence_changed
 |---|---|---|
 | `port`, `baudrate` | `/dev/serial/by-path/...10.3...`, `115200` | 이 PC의 USB 포트 10.3. 다른 PC면 `port:=` 로 지정 |
 | `command_terminator` | `none` | 명령 끝 문자. `none`(벤더 라이브러리와 동일) / `crlf` / `lf` |
-| `send_start_on_connect` | `true` | 포트를 열 때 `sensorStart` 전송 — `sensorStop` 상태로 남은 센서는 아무것도 보내지 않음 |
+| `send_start_on_connect` | `true` | 연결 후 `stale_timeout_s` 동안 프레임이 없으면 `sensorStart` 전송 — `sensorStop` 상태로 남은 센서는 아무것도 보내지 않음 |
 | `apply_config_on_start` | `false` | `true` 면 연결 시 아래 설정을 플래시에 기록 |
 | `detection_ranges` | `[0.0, 9.0]` | `[시작, 끝, ...]` m, 최대 4구간, 0~9m, 0.15m 단위 |
 | `detect_latency_s` / `clear_latency_s` | `0.0` | 감지/해제 보고 지연 (25ms 단위, 최대 1638.375s) |
@@ -59,4 +59,6 @@ cd ros/src/tetra_lab/tetra_mmwave_radar && python3 -m pytest -q test
 
 - 프로토콜 파서·명령 생성: 단위 테스트 13개
 - 노드: 가상 시리얼(socat) 센서 에뮬레이터로 프레임 수신·상태 변화·설정 시퀀스·서비스·diagnostics 확인
-- **실제 센서 연결 검증은 아직 안 됨**: 2026-11-24 어댑터 TX-RX 루프백, 2026-11-25 배선 변경 후에도 어댑터 RX 로 수신 0바이트 (모든 보드레이트)
+- 실제 센서 (2026-11-25, USB 포트 10.3): 프레임 약 1Hz 수신, `stop`/`start` 명령 응답(`Done`) 확인,
+  멈춘 센서를 연결 시 자동으로 다시 시작, 같은 포트에 두 번째 노드는 독점 잠금으로 차단.
+  명령 끝 문자는 `none`(기본값)으로 동작함. **사람 감지(`presence: DETECTED`)는 아직 확인 전**

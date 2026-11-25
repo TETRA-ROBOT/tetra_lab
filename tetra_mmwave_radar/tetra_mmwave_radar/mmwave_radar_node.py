@@ -105,7 +105,10 @@ class MmWaveRadarNode(Node):
     def _open_port(self) -> bool:
         """Open the port and queue the start / config commands for it."""
         try:
-            self._serial = serial.Serial(self._port, self._baudrate, timeout=0.2)
+            # exclusive: a second driver on the same port would split the byte
+            # stream between readers and corrupt frames (seen on the real sensor).
+            self._serial = serial.Serial(self._port, self._baudrate, timeout=0.2,
+                                         exclusive=True)
         except (serial.SerialException, OSError) as error:
             self.get_logger().warn(f'cannot open {self._port}: {error}',
                                    throttle_duration_sec=30.0)
@@ -124,8 +127,14 @@ class MmWaveRadarNode(Node):
             log = self.get_logger().info if ok else self.get_logger().error
             log(f'apply_config_on_start: {message}')
         elif self._pending_start:
-            # A sensor left in sensorStop state is silent until started.
-            self._send_commands([protocol.CMD_START])
+            # A sensor left in sensorStop state is silent until started, but a
+            # running one answers sensorStart with "Error", so only send it
+            # when no frame shows up after connecting.
+            connect_frame_count = self._frame_count
+            time.sleep(self._stale_timeout_s)
+            if self._serial is not None and self._frame_count == connect_frame_count:
+                self.get_logger().info('no frames since connect; sending sensorStart')
+                self._send_commands([protocol.CMD_START])
 
     def _close_port(self) -> None:
         with self._write_lock:
