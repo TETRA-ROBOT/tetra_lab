@@ -19,7 +19,7 @@ setup(
     maintainer='johny',
     maintainer_email='johny@hyulimatech.co.kr',
     description='GPIO controller node for TETRA robot arm control',
-    license='TODO: License declaration',
+    license='Apache-2.0',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
