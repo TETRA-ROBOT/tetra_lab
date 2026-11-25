@@ -1,8 +1,9 @@
 mmwave_radar:
   ros__parameters:
-    # Two CP2102 adapters on this PC share serial "0001", so /dev/serial/by-id
-    # is ambiguous — prefer /dev/serial/by-path/... for a fixed USB port.
-    port: /dev/ttyUSB0
+    # ttyUSB numbers change on replug, and two CP2102 adapters here share serial
+    # "0001" so /dev/serial/by-id is ambiguous. This is the USB socket path of the
+    # radar adapter (port 10.3); the UM982 GPS is on 10.4.
+    port: /dev/serial/by-path/pci-0000:00:14.0-usb-0:10.3:1.0-port0
     baudrate: 115200
     frame_id: mmwave_radar_link
     stale_timeout_s: 3.0

@@ -98,6 +98,6 @@ ros2 run velocity_integrator velocity_integrator_node
 DFRobot SEN0395 (24GHz FMCW) 레이더를 USB-UART(115200bps)로 읽어 사람 유무를 발행합니다. 자세한 내용은 [`tetra_mmwave_radar/README.md`](tetra_mmwave_radar/README.md).
 
 ```bash
-ros2 launch tetra_mmwave_radar mmwave_radar.launch.py port:=/dev/ttyUSB0
+ros2 launch tetra_mmwave_radar mmwave_radar.launch.py
 ros2 topic echo /mmwave_radar/presence_changed
 ```

@@ -28,6 +28,9 @@ from tetra_mmwave_radar import protocol
 # The vendor measured that the sensor drops commands sent closer than 1 s apart.
 COMMAND_INTERVAL_S = 1.0
 RECONNECT_INTERVAL_S = 2.0
+# ttyUSB numbers shuffle on replug (the UM982 GPS took ttyUSB0 once), so
+# default to the USB socket path of this PC's radar adapter (port 10.3).
+DEFAULT_PORT = '/dev/serial/by-path/pci-0000:00:14.0-usb-0:10.3:1.0-port0'
 # Named so the value survives CLI / YAML parsing (raw "\r\n" does not).
 COMMAND_TERMINATORS = {'none': '', 'crlf': '\r\n', 'lf': '\n'}
 
@@ -37,7 +40,7 @@ class MmWaveRadarNode(Node):
 
     def __init__(self) -> None:
         super().__init__('mmwave_radar')
-        self._port = self.declare_parameter('port', '/dev/ttyUSB0').value
+        self._port = self.declare_parameter('port', DEFAULT_PORT).value
         self._baudrate = self.declare_parameter('baudrate', 115200).value
         self._frame_id = self.declare_parameter('frame_id', 'mmwave_radar_link').value
         self._stale_timeout_s = self.declare_parameter('stale_timeout_s', 3.0).value

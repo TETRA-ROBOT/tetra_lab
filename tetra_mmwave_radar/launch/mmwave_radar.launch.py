@@ -12,7 +12,7 @@ def generate_launch_description() -> LaunchDescription:
         get_package_share_directory('tetra_mmwave_radar'), 'config', 'mmwave_radar.yaml')
     return LaunchDescription([
         DeclareLaunchArgument('params_file', default_value=default_params),
-        DeclareLaunchArgument('port', default_value='/dev/ttyUSB0'),
+        DeclareLaunchArgument('port', default_value='/dev/serial/by-path/pci-0000:00:14.0-usb-0:10.3:1.0-port0'),
         Node(
             package='tetra_mmwave_radar',
             executable='mmwave_radar_node',

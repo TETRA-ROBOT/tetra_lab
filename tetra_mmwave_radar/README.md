@@ -12,7 +12,7 @@ USB-UART 어댑터(3.3V 레벨)에 연결합니다. 센서 TX → 어댑터 RX, 
 ## 실행
 
 ```bash
-ros2 launch tetra_mmwave_radar mmwave_radar.launch.py port:=/dev/ttyUSB0
+ros2 launch tetra_mmwave_radar mmwave_radar.launch.py   # 기본 포트: USB 포트 10.3 (by-path)
 ros2 topic echo /mmwave_radar/presence_changed
 ```
 
@@ -34,7 +34,7 @@ ros2 topic echo /mmwave_radar/presence_changed
 
 | 이름 | 기본값 | 설명 |
 |---|---|---|
-| `port`, `baudrate` | `/dev/ttyUSB0`, `115200` | |
+| `port`, `baudrate` | `/dev/serial/by-path/...10.3...`, `115200` | 이 PC의 USB 포트 10.3. 다른 PC면 `port:=` 로 지정 |
 | `command_terminator` | `none` | 명령 끝 문자. `none`(벤더 라이브러리와 동일) / `crlf` / `lf` |
 | `send_start_on_connect` | `true` | 포트를 열 때 `sensorStart` 전송 — `sensorStop` 상태로 남은 센서는 아무것도 보내지 않음 |
 | `apply_config_on_start` | `false` | `true` 면 연결 시 아래 설정을 플래시에 기록 |
@@ -59,4 +59,4 @@ cd ros/src/tetra_lab/tetra_mmwave_radar && python3 -m pytest -q test
 
 - 프로토콜 파서·명령 생성: 단위 테스트 13개
 - 노드: 가상 시리얼(socat) 센서 에뮬레이터로 프레임 수신·상태 변화·설정 시퀀스·서비스·diagnostics 확인
-- **실제 센서 연결 검증은 아직 안 됨** (2026-11-24 시점 이 PC의 `/dev/ttyUSB0` 은 루프백 상태였음)
+- **실제 센서 연결 검증은 아직 안 됨**: 2026-11-24 어댑터 TX-RX 루프백, 2026-11-25 배선 변경 후에도 어댑터 RX 로 수신 0바이트 (모든 보드레이트)
