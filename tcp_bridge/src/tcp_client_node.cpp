@@ -201,6 +201,20 @@ private:
                         tokens.push_back(item);
                     }
 
+                    // 아래는 tokens[3]~[17] 을 읽는다. 칸이 모자란 줄(끊겨 온 줄, 다른 형식)을 그대로 읽으면
+                    // 범위 밖 접근으로 노드가 죽으므로 원문만 내고 나머지 토픽은 건너뛴다
+                    if (tokens.size() < kMinFields)
+                    {
+                        RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 5000,
+                            "Short packet (%zu fields, need %zu): %s", tokens.size(), kMinFields, packet.c_str());
+                        if (!tokens.empty()) {
+                            auto raw = std_msgs::msg::String();
+                            raw.data = packet;
+                            from_ros1_publisher->publish(raw);
+                        }
+                        continue;
+                    }
+
                     /**********************************************************************************/
                     //cmd_vel_pi
                     auto msg3 = geometry_msgs::msg::Twist();
@@ -226,6 +240,7 @@ private:
                     sonic_4_publisher->publish(msg7);
 
                     //radar
+                    // 확인 필요: sonic_4 와 같은 7번 칸을 읽는다. 상대 서버의 프로토콜 문서가 없어 바른 칸을 모르므로 동작은 그대로 둔다
                     auto msg8 = std_msgs::msg::Float64();
                     msg8.data = atof(tokens[7].c_str());
                     radar_publisher->publish(msg8);
@@ -314,6 +329,8 @@ private:
     rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr sonic_3_publisher;
     rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr sonic_4_publisher;
     rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr radar_publisher;
+    // 받은 줄에서 읽는 마지막 칸이 17번(infrared_8)이다
+    static constexpr size_t kMinFields = 18;
     rclcpp::Publisher<std_msgs::msg::Int32>::SharedPtr lidar_1_publisher;
     rclcpp::Publisher<std_msgs::msg::Int32>::SharedPtr dir_publisher;
     rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr infrared_1_publisher;
