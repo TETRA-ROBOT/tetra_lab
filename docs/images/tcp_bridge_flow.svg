@@ -1,0 +1,152 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 530" width="960" height="530" font-family="-apple-system,'Segoe UI','Noto Sans KR','Malgun Gothic',sans-serif" role="img" aria-labelledby="ttl dsc">
+  <title id="ttl">tcp_bridge 메시지 흐름</title>
+  <desc id="dsc">서버 모드는 포트 9000 으로 받은 바이트를 그대로 /from_ros1 에 발행한다. 클라이언트 모드는 30 ms 마다 요청 줄을 보내고, 받은 쉼표 구분 줄의 칸 번호대로 토픽을 발행한다.</desc>
+  <style>
+    .panel{fill:#F7F9FA;stroke:#E0E6EA}
+    .box{fill:#FFFFFF;stroke:#B0BEC5;stroke-width:1.5}
+    .ros{fill:#FFFFFF;stroke:#00897B;stroke-width:2}
+    .ext{fill:#FFFFFF;stroke:#263238;stroke-width:1.5;stroke-dasharray:5 4}
+    .t{fill:#263238}
+    .s{fill:#546E7A}
+    .h{fill:#E53935}
+    .ln{stroke:#78909C;stroke-width:2;fill:none}
+    .mono{font-family:'DejaVu Sans Mono',Consolas,Menlo,monospace}
+    .pk{fill:#00897B}
+    .pk2{fill:#FBC02D}
+    .pkt{fill:#FFFFFF}
+    .c0{fill:#ECEFF1;stroke:#CFD8DC}
+    .c1{fill:#B2DFDB;stroke:#80CBC4}
+    .c2{fill:#FFE9A8;stroke:#F5D06A}
+    .c3{fill:#FFCDD2;stroke:#EF9A9A}
+    .c4{fill:#D1C4E9;stroke:#B39DDB}
+    .sweep{fill:#00897B;opacity:0}
+    .flash{fill:none;stroke:#FBC02D;stroke-width:4;opacity:0}
+    @media (prefers-color-scheme: dark){
+      .panel{fill:#161B22;stroke:#30363D}
+      .box,.ros,.ext{fill:#0D1117}
+      .ros{stroke:#26A69A}
+      .ext{stroke:#B0BEC5}
+      .t{fill:#E6EDF3}
+      .s{fill:#9DA7B1}
+      .h{fill:#FF6F60}
+      .ln{stroke:#6E7681}
+      .pk{fill:#26A69A}
+      .pkt{fill:#0D1117}
+      .c0{fill:#21262D;stroke:#30363D}
+      .c1{fill:#0F3D38;stroke:#1F6F66}
+      .c2{fill:#3D3110;stroke:#7A6220}
+      .c3{fill:#4A1F1F;stroke:#8A3A3A}
+      .c4{fill:#2E2547;stroke:#5B4A8A}
+      .sweep{fill:#26A69A}
+    }
+    .a1{animation:a1 6s linear infinite}
+    .a2{animation:a2 6s linear infinite}
+    .b1{animation:b1 6s linear infinite}
+    .b2{animation:b2 6s linear infinite}
+    .sweep{animation:sw 6s linear infinite}
+    .flash{animation:fl 6s linear infinite}
+    @keyframes a1{0%{transform:translateX(0);opacity:0}5%{opacity:1}28%{transform:translateX(118px);opacity:1}32%,100%{transform:translateX(118px);opacity:0}}
+    @keyframes a2{0%,33%{transform:translateX(0);opacity:0}38%{opacity:1}60%{transform:translateX(56px);opacity:1}64%,100%{transform:translateX(56px);opacity:0}}
+    @keyframes b1{0%{transform:translateX(0);opacity:0}4%{opacity:1}24%{transform:translateX(-160px);opacity:1}27%,100%{transform:translateX(-160px);opacity:0}}
+    @keyframes b2{0%,29%{transform:translateX(0);opacity:0}33%{opacity:1}53%{transform:translateX(160px);opacity:1}56%,100%{transform:translateX(160px);opacity:0}}
+    @keyframes sw{0%,55%{transform:translateX(0);opacity:0}57%{opacity:.35}88%{transform:translateX(850px);opacity:.35}90%,100%{transform:translateX(850px);opacity:0}}
+    @keyframes fl{0%,55%{opacity:0}60%{opacity:1}75%{opacity:1}80%,100%{opacity:0}}
+    @media (prefers-reduced-motion: reduce){
+      .a1,.a2,.b1,.b2,.sweep,.flash{animation:none}
+      .a1,.a2,.b1,.b2{opacity:1}
+    }
+  </style>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#78909C"/></marker>
+  </defs>
+
+  <!-- ① 서버 모드 -->
+  <rect class="panel" x="10" y="10" width="940" height="160" rx="14"/>
+  <text class="t" x="30" y="40" font-size="16" font-weight="700">① 서버 모드 · <tspan class="mono">tcp_server_node</tspan></text>
+  <text class="s" x="390" y="40" font-size="13">외부 → ROS 2 한 방향</text>
+
+  <rect class="ext" x="30" y="58" width="200" height="66" rx="10"/>
+  <text class="t" x="130" y="86" font-size="15" font-weight="700" text-anchor="middle">외부 장치</text>
+  <text class="s" x="130" y="108" font-size="13" text-anchor="middle">PLC·상위 제어기 (접속하는 쪽)</text>
+
+  <rect class="ros" x="400" y="58" width="200" height="66" rx="10"/>
+  <text class="t mono" x="500" y="86" font-size="14" font-weight="700" text-anchor="middle">tcp_server_node</text>
+  <text class="s" x="500" y="108" font-size="13" text-anchor="middle">TCP 9000 에서 대기 (고정)</text>
+
+  <rect class="ros" x="700" y="58" width="230" height="66" rx="10"/>
+  <text class="t mono" x="815" y="86" font-size="14" font-weight="700" text-anchor="middle">/from_ros1</text>
+  <text class="s" x="815" y="108" font-size="13" text-anchor="middle">std_msgs/String</text>
+
+  <line class="ln" x1="232" y1="91" x2="396" y2="91" marker-end="url(#ar)"/>
+  <line class="ln" x1="602" y1="91" x2="696" y2="91" marker-end="url(#ar)"/>
+
+  <g class="a1"><rect class="pk" x="238" y="80" width="40" height="22" rx="11"/><text class="pkt" x="258" y="96" font-size="12" text-anchor="middle" font-weight="700">B…</text></g>
+  <g class="a2"><rect class="pk" x="608" y="80" width="40" height="22" rx="11"/><text class="pkt" x="628" y="96" font-size="12" text-anchor="middle" font-weight="700">msg</text></g>
+
+  <text class="s" x="30" y="152" font-size="13">구분자·길이 헤더 없음: <tspan class="mono">read()</tspan> 한 번에 받은 바이트(최대 1024 B)가 메시지 하나 · 접속은 한 번에 하나씩 · 답장은 보내지 않음</text>
+
+  <!-- ② 클라이언트 모드 -->
+  <rect class="panel" x="10" y="182" width="940" height="338" rx="14"/>
+  <text class="t" x="30" y="212" font-size="16" font-weight="700">② 클라이언트 모드 · <tspan class="mono">tcp_client_node</tspan></text>
+  <text class="s" x="390" y="212" font-size="13">30 ms 마다 묻고, 받은 줄을 토픽으로 나눔</text>
+
+  <rect class="ext" x="30" y="230" width="200" height="80" rx="10"/>
+  <text class="t" x="130" y="256" font-size="15" font-weight="700" text-anchor="middle">외부 TCP 서버</text>
+  <text class="s mono" x="130" y="278" font-size="12" text-anchor="middle">server_ip:server_port</text>
+  <text class="s" x="130" y="298" font-size="12" text-anchor="middle">기본 192.168.123.53:9000</text>
+
+  <rect class="ros" x="400" y="230" width="200" height="80" rx="10"/>
+  <text class="t mono" x="500" y="258" font-size="14" font-weight="700" text-anchor="middle">tcp_client_node</text>
+  <text class="s" x="500" y="282" font-size="13" text-anchor="middle">끊기면 1초마다 재접속</text>
+
+  <rect class="ros" x="700" y="230" width="230" height="80" rx="10"/>
+  <rect class="flash" x="700" y="230" width="230" height="80" rx="10"/>
+  <text class="t mono" x="815" y="258" font-size="14" font-weight="700" text-anchor="middle">/from_ros1</text>
+  <text class="s" x="815" y="282" font-size="13" text-anchor="middle">받은 줄 전체 (String)</text>
+
+  <line class="ln" x1="398" y1="252" x2="234" y2="252" marker-end="url(#ar)"/>
+  <text class="t mono" x="316" y="244" font-size="12" text-anchor="middle">DS,2,1,STATUS,XX\n</text>
+  <line class="ln" x1="232" y1="290" x2="396" y2="290" marker-end="url(#ar)"/>
+  <text class="t mono" x="316" y="306" font-size="12" text-anchor="middle">a,b,c,v,s1,…,ir8\n</text>
+  <line class="ln" x1="602" y1="270" x2="696" y2="270" marker-end="url(#ar)"/>
+
+  <g class="b1"><circle class="pk2" cx="390" cy="252" r="7"/></g>
+  <g class="b2"><circle class="pk" cx="240" cy="290" r="7"/></g>
+
+  <text class="t" x="30" y="346" font-size="14" font-weight="700">받은 한 줄 = 쉼표(,)로 나눈 칸 + 줄바꿈(\n) · 칸 번호 → 토픽</text>
+
+  <g font-size="12" text-anchor="middle">
+    <g class="s mono" font-size="11">
+      <text x="55" y="364">0</text><text x="105" y="364">1</text><text x="155" y="364">2</text><text x="205" y="364">3</text>
+      <text x="255" y="364">4</text><text x="305" y="364">5</text><text x="355" y="364">6</text><text x="405" y="364">7</text>
+      <text x="455" y="364">8</text><text x="505" y="364">9</text><text x="555" y="364">10</text><text x="605" y="364">11</text>
+      <text x="655" y="364">12</text><text x="705" y="364">13</text><text x="755" y="364">14</text><text x="805" y="364">15</text>
+      <text x="855" y="364">16</text><text x="905" y="364">17</text>
+    </g>
+    <rect class="c0" x="31" y="370" width="48" height="32" rx="4"/><rect class="c0" x="81" y="370" width="48" height="32" rx="4"/><rect class="c0" x="131" y="370" width="48" height="32" rx="4"/>
+    <rect class="c1" x="181" y="370" width="48" height="32" rx="4"/>
+    <rect class="c2" x="231" y="370" width="48" height="32" rx="4"/><rect class="c2" x="281" y="370" width="48" height="32" rx="4"/><rect class="c2" x="331" y="370" width="48" height="32" rx="4"/><rect class="c2" x="381" y="370" width="48" height="32" rx="4"/>
+    <rect class="c3" x="431" y="370" width="48" height="32" rx="4"/><rect class="c3" x="481" y="370" width="48" height="32" rx="4"/>
+    <rect class="c4" x="531" y="370" width="48" height="32" rx="4"/><rect class="c4" x="581" y="370" width="48" height="32" rx="4"/><rect class="c4" x="631" y="370" width="48" height="32" rx="4"/><rect class="c4" x="681" y="370" width="48" height="32" rx="4"/>
+    <rect class="c4" x="731" y="370" width="48" height="32" rx="4"/><rect class="c4" x="781" y="370" width="48" height="32" rx="4"/><rect class="c4" x="831" y="370" width="48" height="32" rx="4"/><rect class="c4" x="881" y="370" width="48" height="32" rx="4"/>
+    <g class="t mono">
+      <text x="55" y="391">–</text><text x="105" y="391">–</text><text x="155" y="391">–</text><text x="205" y="391">v</text>
+      <text x="255" y="391">s1</text><text x="305" y="391">s2</text><text x="355" y="391">s3</text><text x="405" y="391">s4</text>
+      <text x="455" y="391">lid</text><text x="505" y="391">dir</text><text x="555" y="391">ir1</text><text x="605" y="391">ir2</text>
+      <text x="655" y="391">ir3</text><text x="705" y="391">ir4</text><text x="755" y="391">ir5</text><text x="805" y="391">ir6</text>
+      <text x="855" y="391">ir7</text><text x="905" y="391">ir8</text>
+    </g>
+  </g>
+  <rect class="sweep" x="30" y="368" width="52" height="36" rx="5"/>
+
+  <g font-size="13">
+    <text class="s" x="105" y="428" text-anchor="middle">0~2 칸은 읽지 않음</text>
+    <text class="t mono" x="205" y="452" text-anchor="middle">/cmd_vel_pi</text>
+    <text class="t mono" x="330" y="428" text-anchor="middle">/sonic_1 ~ 4</text>
+    <text class="t mono" x="455" y="452" text-anchor="middle">/lidar_1</text>
+    <text class="t mono" x="505" y="428" text-anchor="middle">/dir</text>
+    <text class="t mono" x="730" y="428" text-anchor="middle">/infrared_1 ~ 8</text>
+    <text class="h" x="330" y="476" text-anchor="middle">/radar 도 7번 칸 (sonic_4 와 같은 값)</text>
+  </g>
+  <text class="s" x="30" y="506" font-size="12.5">타입: <tspan class="mono">cmd_vel_pi</tspan> Twist(linear.x 만, angular.z = 0) · sonic·radar·infrared Float64 · lidar_1·dir Int32 · 칸 수 검사가 없어 18칸보다 짧은 줄은 노드를 죽일 수 있음</text>
+</svg>

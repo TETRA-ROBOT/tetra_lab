@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 230" width="960" height="230" font-family="-apple-system,'Segoe UI','Noto Sans KR','Malgun Gothic',sans-serif" role="img" aria-labelledby="ttl dsc">
+  <title id="ttl">tetra_lab 패키지 5개</title>
+  <desc id="dsc">robot_gazebo_sim, tcp_bridge, tetra_gpio_controller, velocity_integrator, tetra_mmwave_radar 다섯 패키지를 카드로 보여 준다.</desc>
+  <style>
+    .card{fill:#FFFFFF;stroke:#E0E6EA}
+    .t{fill:#263238}
+    .s{fill:#546E7A}
+    .ic{stroke:#263238;stroke-width:2;fill:none}
+    .icf{fill:#263238}
+    .acc{fill:#00897B}
+    .red{fill:#E53935}
+    .yel{fill:#FBC02D}
+    .lang{fill:#ECEFF1}
+    .mono{font-family:'DejaVu Sans Mono',Consolas,Menlo,monospace}
+    @media (prefers-color-scheme: dark){
+      .card{fill:#161B22;stroke:#30363D}
+      .t{fill:#E6EDF3}
+      .s{fill:#9DA7B1}
+      .ic{stroke:#E6EDF3}
+      .icf{fill:#E6EDF3}
+      .acc{fill:#26A69A}
+      .lang{fill:#21262D}
+    }
+  </style>
+
+  <!-- 1 robot_gazebo_sim -->
+  <g transform="translate(14,14)">
+    <rect class="card" width="174" height="202" rx="12"/>
+    <rect class="red" width="174" height="6" rx="3"/>
+    <path class="ic" d="M87,30 L112,43 L112,70 L87,83 L62,70 L62,43 Z M62,43 L87,56 L112,43 M87,56 L87,83"/>
+    <text class="t" x="87" y="112" font-size="15" font-weight="700" text-anchor="middle">Gazebo 시뮬레이션</text>
+    <text class="s" x="87" y="134" font-size="12.5" text-anchor="middle">6종 모델 스폰 · SLAM · Nav2</text>
+    <text class="t mono" x="87" y="162" font-size="11.5" text-anchor="middle">robot_gazebo_sim</text>
+    <rect class="lang" x="47" y="174" width="80" height="18" rx="9"/><text class="s" x="87" y="187" font-size="11" text-anchor="middle">Python·XML</text>
+  </g>
+
+  <!-- 2 tcp_bridge -->
+  <g transform="translate(200,14)">
+    <rect class="card" width="174" height="202" rx="12"/>
+    <rect class="acc" width="174" height="6" rx="3"/>
+    <path class="ic" d="M56,46 L118,46 M108,38 L118,46 L108,54 M118,68 L56,68 M66,60 L56,68 L66,76"/>
+    <text class="t" x="87" y="112" font-size="15" font-weight="700" text-anchor="middle">TCP ↔ ROS 2</text>
+    <text class="s" x="87" y="134" font-size="12.5" text-anchor="middle">PLC · 상위 제어기 연결</text>
+    <text class="t mono" x="87" y="162" font-size="11.5" text-anchor="middle">tcp_bridge</text>
+    <rect class="lang" x="57" y="174" width="60" height="18" rx="9"/><text class="s" x="87" y="187" font-size="11" text-anchor="middle">C++</text>
+  </g>
+
+  <!-- 3 tetra_gpio_controller -->
+  <g transform="translate(386,14)">
+    <rect class="card" width="174" height="202" rx="12"/>
+    <rect class="yel" width="174" height="6" rx="3"/>
+    <g class="icf">
+      <rect x="47" y="50" width="8" height="14" rx="2"/><rect x="58" y="50" width="8" height="14" rx="2"/><rect x="69" y="50" width="8" height="14" rx="2"/><rect x="80" y="50" width="8" height="14" rx="2"/>
+      <rect x="91" y="50" width="8" height="14" rx="2"/><rect x="102" y="50" width="8" height="14" rx="2"/><rect x="113" y="50" width="8" height="14" rx="2"/><rect x="124" y="50" width="8" height="14" rx="2"/>
+    </g>
+    <rect class="red" x="69" y="38" width="8" height="10" rx="2"/>
+    <text class="t" x="87" y="112" font-size="15" font-weight="700" text-anchor="middle">GPIO → 장치 동작</text>
+    <text class="s" x="87" y="134" font-size="12.5" text-anchor="middle">리프트 · 팬틸트 · 팔 (MH)</text>
+    <text class="t mono" x="87" y="162" font-size="11.5" text-anchor="middle">tetra_gpio_controller</text>
+    <rect class="lang" x="52" y="174" width="70" height="18" rx="9"/><text class="s" x="87" y="187" font-size="11" text-anchor="middle">Python</text>
+  </g>
+
+  <!-- 4 velocity_integrator -->
+  <g transform="translate(572,14)">
+    <rect class="card" width="174" height="202" rx="12"/>
+    <rect class="acc" width="174" height="6" rx="3"/>
+    <text class="t" x="74" y="80" font-size="46" text-anchor="middle" font-style="italic">∫</text>
+    <text class="s mono" x="88" y="72" font-size="15">v dt</text>
+    <text class="t" x="87" y="112" font-size="15" font-weight="700" text-anchor="middle">주행 거리 적분</text>
+    <text class="s" x="87" y="134" font-size="12.5" text-anchor="middle">속도 명령 → 누적 거리</text>
+    <text class="t mono" x="87" y="162" font-size="11.5" text-anchor="middle">velocity_integrator</text>
+    <rect class="lang" x="57" y="174" width="60" height="18" rx="9"/><text class="s" x="87" y="187" font-size="11" text-anchor="middle">C++</text>
+  </g>
+
+  <!-- 5 tetra_mmwave_radar -->
+  <g transform="translate(758,14)">
+    <rect class="card" width="188" height="202" rx="12"/>
+    <rect class="s" width="188" height="6" rx="3"/>
+    <rect class="icf" x="58" y="50" width="12" height="20" rx="2"/>
+    <path class="ic" d="M80,48 Q90,60 80,72 M92,40 Q108,60 92,80 M104,32 Q126,60 104,88"/>
+    <text class="t" x="94" y="112" font-size="15" font-weight="700" text-anchor="middle">사람 감지 레이더</text>
+    <text class="s" x="94" y="134" font-size="12.5" text-anchor="middle">SEN0395 · UART · 실험</text>
+    <text class="t mono" x="94" y="162" font-size="11.5" text-anchor="middle">tetra_mmwave_radar</text>
+    <rect class="lang" x="59" y="174" width="70" height="18" rx="9"/><text class="s" x="94" y="187" font-size="11" text-anchor="middle">Python</text>
+  </g>
+</svg>
